@@ -7,11 +7,15 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
+    <!-- QR Code Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+    
     <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-        import { getDatabase, ref, set, get, onValue, serverTimestamp, push } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+        import { getDatabase, ref, set, get, onValue, serverTimestamp, push, update, transaction } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 
         // Firebase Configuration - GUNAKAN KONFIGURASI YANG BENAR
         const firebaseConfig = {
@@ -38,6 +42,8 @@
         window.firebaseOnValue = onValue;
         window.firebaseServerTimestamp = serverTimestamp;
         window.firebasePush = push;
+        window.firebaseUpdate = update;
+        window.firebaseTransaction = transaction;
         window.onAuthStateChanged = onAuthStateChanged;
         window.signOut = signOut;
     </script>
@@ -387,7 +393,7 @@
         .card-header {
             display: flex;
             align-items: center;
-            justify-content: between;
+            justify-content: space-between;
             margin-bottom: 1.5rem;
         }
 
@@ -406,7 +412,6 @@
             justify-content: center;
             font-size: 1.5rem;
             color: white;
-            margin-left: auto;
         }
 
         /* Balance Card */
@@ -756,6 +761,194 @@
             background: #c0392b;
         }
 
+        /* PIN Input */
+        .pin-input-container {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin: 2rem 0;
+        }
+
+        .pin-digit {
+            width: 50px;
+            height: 50px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 600;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+        }
+
+        .pin-digit:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.1);
+        }
+
+        .pin-digit.filled {
+            background: var(--secondary-color);
+            color: white;
+            border-color: var(--secondary-color);
+        }
+
+        /* QR Code Styles */
+        .qr-container {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .qr-code-display {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            display: inline-block;
+            margin: 1rem 0;
+            box-shadow: var(--shadow-medium);
+        }
+
+        .qr-scanner-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .qr-video {
+            width: 100%;
+            border-radius: 16px;
+        }
+
+        .qr-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px;
+            height: 200px;
+            border: 2px solid var(--secondary-color);
+            border-radius: 16px;
+            pointer-events: none;
+        }
+
+        .qr-overlay::before,
+        .qr-overlay::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 3px solid var(--secondary-color);
+        }
+
+        .qr-overlay::before {
+            top: -3px;
+            left: -3px;
+            border-right: none;
+            border-bottom: none;
+        }
+
+        .qr-overlay::after {
+            bottom: -3px;
+            right: -3px;
+            border-left: none;
+            border-top: none;
+        }
+
+        /* Transfer Form Styles */
+        .transfer-step {
+            display: none;
+        }
+
+        .transfer-step.active {
+            display: block;
+        }
+
+        .recipient-card {
+            background: var(--bg-tertiary);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border: 1px solid var(--border-color);
+        }
+
+        .recipient-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .recipient-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--primary-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .recipient-details h3 {
+            margin: 0;
+            color: var(--text-primary);
+            font-size: 1.1rem;
+        }
+
+        .recipient-details p {
+            margin: 0.25rem 0 0 0;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Amount Input */
+        .amount-input-container {
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        .amount-input {
+            font-size: 2rem;
+            font-weight: 700;
+            text-align: center;
+            border: none;
+            background: transparent;
+            color: var(--text-primary);
+            width: 100%;
+            padding: 1rem;
+        }
+
+        .amount-input:focus {
+            outline: none;
+        }
+
+        .amount-shortcuts {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+
+        .amount-shortcut {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .amount-shortcut:hover {
+            background: var(--primary-gradient);
+            color: white;
+            border-color: transparent;
+        }
+
         /* Responsive Design */
         @media (max-width: 768px) {
             .header {
@@ -790,6 +983,16 @@
 
             .balance-amount {
                 font-size: 2rem;
+            }
+
+            .pin-input-container {
+                gap: 0.25rem;
+            }
+
+            .pin-digit {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
             }
         }
 
@@ -883,6 +1086,57 @@
             color: var(--warning-color);
             border: 1px solid rgba(243, 156, 18, 0.2);
         }
+
+        /* Onboarding Styles */
+        .onboarding-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--primary-gradient);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9997;
+        }
+
+        .onboarding-screen.show {
+            display: flex;
+        }
+
+        .onboarding-container {
+            background: var(--glass-bg);
+            backdrop-filter: var(--glass-backdrop);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: var(--shadow-heavy);
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            color: white;
+        }
+
+        .onboarding-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .onboarding-subtitle {
+            opacity: 0.9;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .onboarding-step {
+            display: none;
+        }
+
+        .onboarding-step.active {
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -906,6 +1160,65 @@
         </div>
     </div>
 
+    <!-- Onboarding Screen -->
+    <div class="onboarding-screen" id="onboardingScreen">
+        <div class="onboarding-container">
+            <!-- Welcome Step -->
+            <div class="onboarding-step active" id="welcomeStep">
+                <div class="onboarding-title">Selamat Datang!</div>
+                <div class="onboarding-subtitle">
+                    Terima kasih telah bergabung dengan PremiumBank. Mari kita siapkan akun Anda untuk pengalaman banking digital yang terbaik.
+                </div>
+                <button class="btn btn-primary" onclick="nextOnboardingStep()">Mulai Setup</button>
+            </div>
+
+            <!-- Profile Setup Step -->
+            <div class="onboarding-step" id="profileStep">
+                <div class="onboarding-title">Lengkapi Profil</div>
+                <div class="onboarding-subtitle">
+                    Kami perlu beberapa informasi dasar untuk mengatur akun Anda.
+                </div>
+                <form id="profileForm" onsubmit="saveProfile(event)">
+                    <div class="form-group">
+                        <label class="form-label">Nama Lengkap</label>
+                        <input type="text" class="form-input" id="fullNameInput" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Nomor Telepon</label>
+                        <input type="tel" class="form-input" id="phoneInput" placeholder="+62812345678" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Lanjutkan</button>
+                </form>
+            </div>
+
+            <!-- PIN Setup Step -->
+            <div class="onboarding-step" id="pinStep">
+                <div class="onboarding-title">Buat PIN Transaksi</div>
+                <div class="onboarding-subtitle">
+                    PIN 6 digit ini akan digunakan untuk mengamankan semua transaksi Anda.
+                </div>
+                <div class="pin-input-container">
+                    <input type="password" class="pin-digit" maxlength="1" id="pin1">
+                    <input type="password" class="pin-digit" maxlength="1" id="pin2">
+                    <input type="password" class="pin-digit" maxlength="1" id="pin3">
+                    <input type="password" class="pin-digit" maxlength="1" id="pin4">
+                    <input type="password" class="pin-digit" maxlength="1" id="pin5">
+                    <input type="password" class="pin-digit" maxlength="1" id="pin6">
+                </div>
+                <button class="btn btn-primary" onclick="savePIN()">Simpan PIN</button>
+            </div>
+
+            <!-- Complete Step -->
+            <div class="onboarding-step" id="completeStep">
+                <div class="onboarding-title">Setup Selesai!</div>
+                <div class="onboarding-subtitle">
+                    Akun Anda telah siap digunakan. Selamat menikmati layanan PremiumBank!
+                </div>
+                <button class="btn btn-primary" onclick="completeOnboarding()">Masuk ke Dashboard</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Main Dashboard -->
     <div class="dashboard" id="dashboard">
         <!-- Header -->
@@ -924,7 +1237,7 @@
                 </button>
                 <button class="notification-btn" onclick="showNotifications()" title="Notifications" style="position: relative;">
                     <i class="fas fa-bell"></i>
-                    <span class="notification-badge" id="notificationBadge">3</span>
+                    <span class="notification-badge" id="notificationBadge">0</span>
                 </button>
                 <button class="logout-btn" onclick="logout()" title="Logout">
                     <i class="fas fa-sign-out-alt"></i>
@@ -999,7 +1312,7 @@
                             <button class="balance-toggle" onclick="toggleBalance()" title="Toggle Balance Visibility">
                                 <i class="fas fa-eye" id="balanceToggleIcon"></i>
                             </button>
-                            <div class="balance-amount" id="balanceAmount">Rp 12,500,000</div>
+                            <div class="balance-amount" id="balanceAmount">Rp 0</div>
                             <div class="balance-label">Total Balance</div>
                         </div>
 
@@ -1011,8 +1324,8 @@
                                     <i class="fas fa-arrow-up"></i>
                                 </div>
                             </div>
-                            <div class="balance-amount" style="color: var(--secondary-color); font-size: 1.8rem;">
-                                +Rp 2,350,000
+                            <div class="balance-amount" style="color: var(--secondary-color); font-size: 1.8rem;" id="monthlyIncome">
+                                +Rp 0
                             </div>
                             <div class="balance-label" style="color: var(--text-secondary);">Income</div>
                         </div>
@@ -1024,8 +1337,8 @@
                                     <i class="fas fa-arrow-down"></i>
                                 </div>
                             </div>
-                            <div class="balance-amount" style="color: var(--danger-color); font-size: 1.8rem;">
-                                -Rp 1,850,000
+                            <div class="balance-amount" style="color: var(--danger-color); font-size: 1.8rem;" id="monthlyExpense">
+                                -Rp 0
                             </div>
                             <div class="balance-label" style="color: var(--text-secondary);">Expenses</div>
                         </div>
@@ -1041,7 +1354,7 @@
                             <i class="fas fa-mobile-alt"></i>
                             <div>Top Up</div>
                         </a>
-                        <a href="#" class="quick-action" onclick="showQRScanner()">
+                        <a href="#" class="quick-action" onclick="showQROptions()">
                             <i class="fas fa-qrcode"></i>
                             <div>QR Pay</div>
                         </a>
@@ -1066,7 +1379,129 @@
                             <a href="#" onclick="showSection('transactions')" style="color: var(--secondary-color); text-decoration: none; font-weight: 500;">View All</a>
                         </div>
                         <div id="recentTransactions">
-                            <!-- Transactions will be loaded here -->
+                            <div style="text-align: center; padding: 2rem; color: var(--text-muted);">
+                                <i class="fas fa-receipt" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                                <p>Belum ada transaksi</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Transfer Section -->
+                <div id="transferSection" class="content-section" style="display: none;">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">Transfer Uang</div>
+                        </div>
+                        
+                        <!-- Step 1: Search Recipient -->
+                        <div class="transfer-step active" id="searchStep">
+                            <div class="form-group">
+                                <label class="form-label">Nomor Telepon Penerima</label>
+                                <input type="tel" class="form-input" id="recipientPhone" placeholder="+62812345678">
+                            </div>
+                            <button class="btn btn-primary" onclick="searchRecipient()">
+                                <i class="fas fa-search"></i> Cari Penerima
+                            </button>
+                        </div>
+
+                        <!-- Step 2: Confirm Recipient -->
+                        <div class="transfer-step" id="confirmRecipientStep">
+                            <div class="recipient-card" id="recipientCard">
+                                <!-- Recipient info will be populated here -->
+                            </div>
+                            <div style="display: flex; gap: 1rem;">
+                                <button class="btn btn-secondary" onclick="backToSearch()">Kembali</button>
+                                <button class="btn btn-primary" onclick="proceedToAmount()">Lanjutkan</button>
+                            </div>
+                        </div>
+
+                        <!-- Step 3: Enter Amount -->
+                        <div class="transfer-step" id="amountStep">
+                            <div class="amount-input-container">
+                                <div style="font-size: 1rem; color: var(--text-secondary); margin-bottom: 1rem;">
+                                    Masukkan Jumlah Transfer
+                                </div>
+                                <input type="number" class="amount-input" id="transferAmount" placeholder="0" min="1000">
+                                <div style="font-size: 0.9rem; color: var(--text-muted);">
+                                    Saldo Anda: <span id="currentBalance">Rp 0</span>
+                                </div>
+                            </div>
+                            <div class="amount-shortcuts">
+                                <div class="amount-shortcut" onclick="setAmount(50000)">50K</div>
+                                <div class="amount-shortcut" onclick="setAmount(100000)">100K</div>
+                                <div class="amount-shortcut" onclick="setAmount(500000)">500K</div>
+                                <div class="amount-shortcut" onclick="setAmount(1000000)">1M</div>
+                            </div>
+                            <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                                <button class="btn btn-secondary" onclick="backToRecipient()">Kembali</button>
+                                <button class="btn btn-primary" onclick="proceedToConfirm()">Lanjutkan</button>
+                            </div>
+                        </div>
+
+                        <!-- Step 4: Confirm Transfer -->
+                        <div class="transfer-step" id="confirmTransferStep">
+                            <div style="text-align: center; margin-bottom: 2rem;">
+                                <h3>Konfirmasi Transfer</h3>
+                            </div>
+                            <div id="transferSummary">
+                                <!-- Transfer summary will be populated here -->
+                            </div>
+                            <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                                <button class="btn btn-secondary" onclick="backToAmount()">Kembali</button>
+                                <button class="btn btn-primary" onclick="proceedToPIN()">Bayar</button>
+                            </div>
+                        </div>
+
+                        <!-- Step 5: Enter PIN -->
+                        <div class="transfer-step" id="pinStep">
+                            <div style="text-align: center; margin-bottom: 2rem;">
+                                <h3>Masukkan PIN Transaksi</h3>
+                                <p style="color: var(--text-secondary);">Masukkan PIN 6 digit untuk mengonfirmasi transfer</p>
+                            </div>
+                            <div class="pin-input-container">
+                                <input type="password" class="pin-digit" maxlength="1" id="tpin1">
+                                <input type="password" class="pin-digit" maxlength="1" id="tpin2">
+                                <input type="password" class="pin-digit" maxlength="1" id="tpin3">
+                                <input type="password" class="pin-digit" maxlength="1" id="tpin4">
+                                <input type="password" class="pin-digit" maxlength="1" id="tpin5">
+                                <input type="password" class="pin-digit" maxlength="1" id="tpin6">
+                            </div>
+                            <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                                <button class="btn btn-secondary" onclick="backToConfirm()">Kembali</button>
+                                <button class="btn btn-primary" onclick="executeTransfer()">Konfirmasi</button>
+                            </div>
+                        </div>
+
+                        <!-- Step 6: Success -->
+                        <div class="transfer-step" id="successStep">
+                            <div style="text-align: center;">
+                                <div style="font-size: 4rem; color: var(--secondary-color); margin-bottom: 1rem;">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                                <h3 style="color: var(--secondary-color); margin-bottom: 1rem;">Transfer Berhasil!</h3>
+                                <div id="successDetails">
+                                    <!-- Success details will be populated here -->
+                                </div>
+                                <button class="btn btn-primary" onclick="resetTransfer()" style="margin-top: 2rem;">
+                                    Transfer Lagi
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Transactions Section -->
+                <div id="transactionsSection" class="content-section" style="display: none;">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">Riwayat Transaksi</div>
+                        </div>
+                        <div id="transactionHistory">
+                            <div style="text-align: center; padding: 2rem; color: var(--text-muted);">
+                                <i class="fas fa-history" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                                <p>Belum ada riwayat transaksi</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1096,7 +1531,7 @@
                         <div class="settings-item">
                             <div>
                                 <div class="settings-label">Phone Number</div>
-                                <div class="settings-value" id="userPhone">+62 812-3456-7890</div>
+                                <div class="settings-value" id="userPhone">Loading...</div>
                             </div>
                             <button class="settings-action" onclick="editPhone()">Change</button>
                         </div>
@@ -1111,7 +1546,7 @@
                         <div class="settings-item">
                             <div>
                                 <div class="settings-label">Transaction PIN</div>
-                                <div class="settings-value">Last changed 30 days ago</div>
+                                <div class="settings-value" id="pinStatus">Not set</div>
                             </div>
                             <button class="settings-action" onclick="changePIN()">Change PIN</button>
                         </div>
@@ -1129,93 +1564,14 @@
                             </div>
                             <button class="settings-action" onclick="toggle2FA()">Manage</button>
                         </div>
-                        <div class="settings-item">
-                            <div>
-                                <div class="settings-label">Login Devices</div>
-                                <div class="settings-value">3 active devices</div>
-                            </div>
-                            <button class="settings-action" onclick="manageDevices()">Manage</button>
-                        </div>
-                    </div>
-
-                    <!-- Linked Accounts -->
-                    <div class="settings-section">
-                        <div class="settings-title">
-                            <i class="fas fa-link"></i>
-                            Linked Accounts
-                        </div>
-                        <div class="settings-item">
-                            <div>
-                                <div class="settings-label">Bank BCA</div>
-                                <div class="settings-value">****1234 - Active</div>
-                            </div>
-                            <button class="settings-action danger" onclick="unlinkAccount('bca')">Remove</button>
-                        </div>
-                        <div class="settings-item">
-                            <div>
-                                <div class="settings-label">GoPay</div>
-                                <div class="settings-value">Connected</div>
-                            </div>
-                            <button class="settings-action danger" onclick="unlinkAccount('gopay')">Remove</button>
-                        </div>
-                        <div class="settings-item">
-                            <div>
-                                <div class="settings-label">Add New Account</div>
-                                <div class="settings-value">Link external accounts</div>
-                            </div>
-                            <button class="settings-action" onclick="linkNewAccount()">Add Account</button>
-                        </div>
-                    </div>
-
-                    <!-- Preferences -->
-                    <div class="settings-section">
-                        <div class="settings-title">
-                            <i class="fas fa-sliders-h"></i>
-                            Preferences
-                        </div>
-                        <div class="settings-item">
-                            <div>
-                                <div class="settings-label">Notifications</div>
-                                <div class="settings-value">Email & Push enabled</div>
-                            </div>
-                            <button class="settings-action" onclick="manageNotifications()">Manage</button>
-                        </div>
-                        <div class="settings-item">
-                            <div>
-                                <div class="settings-label">Language</div>
-                                <div class="settings-value">English (US)</div>
-                            </div>
-                            <button class="settings-action" onclick="changeLanguage()">Change</button>
-                        </div>
-                        <div class="settings-item">
-                            <div>
-                                <div class="settings-label">Currency</div>
-                                <div class="settings-value">Indonesian Rupiah (IDR)</div>
-                            </div>
-                            <button class="settings-action" onclick="changeCurrency()">Change</button>
-                        </div>
                     </div>
                 </div>
 
-                <!-- Other sections will be added here -->
-                <div id="transferSection" class="content-section" style="display: none;">
-                    <div class="card">
-                        <div class="card-title">Transfer Money</div>
-                        <p>Transfer feature coming soon...</p>
-                    </div>
-                </div>
-
+                <!-- Other sections placeholders -->
                 <div id="paymentsSection" class="content-section" style="display: none;">
                     <div class="card">
                         <div class="card-title">Payments & Bills</div>
                         <p>Payment feature coming soon...</p>
-                    </div>
-                </div>
-
-                <div id="transactionsSection" class="content-section" style="display: none;">
-                    <div class="card">
-                        <div class="card-title">Transaction History</div>
-                        <p>Transaction history coming soon...</p>
                     </div>
                 </div>
 
@@ -1261,6 +1617,10 @@
         let currentUser = null;
         let balanceVisible = true;
         let isDarkTheme = false;
+        let currentStep = 1;
+        let transferData = {};
+        let userBalance = 0;
+        let onboardingStep = 0;
 
         // Initialize app
         window.addEventListener('load', function() {
@@ -1289,8 +1649,7 @@
                 if (user) {
                     currentUser = user;
                     console.log('Authenticated user:', user.email);
-                    showDashboard();
-                    loadUserData();
+                    checkUserSetup();
                 } else {
                     console.log('No authenticated user, showing login required screen');
                     showLoginRequired();
@@ -1298,110 +1657,402 @@
             });
         }
 
+        async function checkUserSetup() {
+            try {
+                const userRef = window.firebaseRef(window.firebaseDatabase, `users/${currentUser.uid}`);
+                const snapshot = await window.firebaseGet(userRef);
+                
+                if (!snapshot.exists()) {
+                    // New user, show onboarding
+                    console.log('New user detected, starting onboarding');
+                    await initializeNewUser();
+                    showOnboarding();
+                } else {
+                    const userData = snapshot.val();
+                    if (!userData.profile || !userData.profile.phoneNumber || !userData.security || !userData.security.hasPinSet) {
+                        // Incomplete setup, show onboarding
+                        console.log('Incomplete user setup, continuing onboarding');
+                        showOnboarding();
+                    } else {
+                        // Complete setup, show dashboard
+                        console.log('User setup complete, showing dashboard');
+                        showDashboard();
+                        loadUserData();
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking user setup:', error);
+                showDashboard(); // Fallback to dashboard
+            }
+        }
+
+        async function initializeNewUser() {
+            try {
+                const newUserData = {
+                    profile: {
+                        email: currentUser.email,
+                        displayName: currentUser.displayName || '',
+                        phoneNumber: '',
+                        createdAt: window.firebaseServerTimestamp(),
+                        lastLoginAt: window.firebaseServerTimestamp()
+                    },
+                    balance: {
+                        current: 0,
+                        lastUpdated: window.firebaseServerTimestamp()
+                    },
+                    security: {
+                        transactionPin: '',
+                        pinCreatedAt: null,
+                        pinLastChanged: null,
+                        hasPinSet: false
+                    },
+                    settings: {
+                        balanceVisible: true,
+                        notificationsEnabled: true,
+                        theme: 'light'
+                    }
+                };
+
+                const userRef = window.firebaseRef(window.firebaseDatabase, `users/${currentUser.uid}`);
+                await window.firebaseSet(userRef, newUserData);
+                console.log('New user data initialized');
+            } catch (error) {
+                console.error('Error initializing new user:', error);
+            }
+        }
+
+        function showOnboarding() {
+            document.getElementById('loginRequiredScreen').classList.remove('show');
+            document.getElementById('dashboard').classList.remove('active');
+            document.getElementById('onboardingScreen').classList.add('show');
+        }
+
         function showLoginRequired() {
             document.getElementById('loginRequiredScreen').classList.add('show');
             document.getElementById('dashboard').classList.remove('active');
+            document.getElementById('onboardingScreen').classList.remove('show');
         }
 
         function showDashboard() {
             console.log('Showing dashboard for user:', currentUser.email);
             document.getElementById('loginRequiredScreen').classList.remove('show');
+            document.getElementById('onboardingScreen').classList.remove('show');
             document.getElementById('dashboard').classList.add('active');
             loadDashboardData();
         }
 
-        function loadUserData() {
+        // Onboarding functions
+        function nextOnboardingStep() {
+            document.getElementById('welcomeStep').classList.remove('active');
+            document.getElementById('profileStep').classList.add('active');
+            onboardingStep = 1;
+        }
+
+        async function saveProfile(event) {
+            event.preventDefault();
+            
+            const fullName = document.getElementById('fullNameInput').value;
+            const phoneNumber = document.getElementById('phoneInput').value;
+            
+            if (!fullName || !phoneNumber) {
+                showMessage('Mohon lengkapi semua field', 'error');
+                return;
+            }
+
+            // Validate phone number format
+            if (!phoneNumber.startsWith('+62')) {
+                showMessage('Nomor telepon harus dimulai dengan +62', 'error');
+                return;
+            }
+
+            try {
+                // Update user profile
+                const updates = {};
+                updates[`users/${currentUser.uid}/profile/displayName`] = fullName;
+                updates[`users/${currentUser.uid}/profile/phoneNumber`] = phoneNumber;
+                updates[`phoneDirectory/${phoneNumber}`] = currentUser.uid;
+
+                await window.firebaseUpdate(window.firebaseRef(window.firebaseDatabase), updates);
+                
+                // Move to PIN setup
+                document.getElementById('profileStep').classList.remove('active');
+                document.getElementById('pinStep').classList.add('active');
+                onboardingStep = 2;
+                
+                setupPINInput();
+            } catch (error) {
+                console.error('Error saving profile:', error);
+                showMessage('Gagal menyimpan profil. Silakan coba lagi.', 'error');
+            }
+        }
+
+        function setupPINInput() {
+            const pinInputs = ['pin1', 'pin2', 'pin3', 'pin4', 'pin5', 'pin6'];
+            
+            pinInputs.forEach((id, index) => {
+                const input = document.getElementById(id);
+                input.addEventListener('input', function() {
+                    if (this.value.length === 1) {
+                        this.classList.add('filled');
+                        if (index < pinInputs.length - 1) {
+                            document.getElementById(pinInputs[index + 1]).focus();
+                        }
+                    } else {
+                        this.classList.remove('filled');
+                    }
+                });
+                
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === 'Backspace' && this.value === '' && index > 0) {
+                        document.getElementById(pinInputs[index - 1]).focus();
+                    }
+                });
+            });
+        }
+
+        async function savePIN() {
+            const pinInputs = ['pin1', 'pin2', 'pin3', 'pin4', 'pin5', 'pin6'];
+            const pin = pinInputs.map(id => document.getElementById(id).value).join('');
+            
+            if (pin.length !== 6) {
+                showMessage('PIN harus 6 digit', 'error');
+                return;
+            }
+
+            try {
+                // Hash PIN (in real app, use proper hashing)
+                const hashedPin = btoa(pin); // Simple base64 encoding for demo
+                
+                const updates = {};
+                updates[`users/${currentUser.uid}/security/transactionPin`] = hashedPin;
+                updates[`users/${currentUser.uid}/security/pinCreatedAt`] = window.firebaseServerTimestamp();
+                updates[`users/${currentUser.uid}/security/pinLastChanged`] = window.firebaseServerTimestamp();
+                updates[`users/${currentUser.uid}/security/hasPinSet`] = true;
+
+                await window.firebaseUpdate(window.firebaseRef(window.firebaseDatabase), updates);
+                
+                // Move to complete step
+                document.getElementById('pinStep').classList.remove('active');
+                document.getElementById('completeStep').classList.add('active');
+                onboardingStep = 3;
+            } catch (error) {
+                console.error('Error saving PIN:', error);
+                showMessage('Gagal menyimpan PIN. Silakan coba lagi.', 'error');
+            }
+        }
+
+        function completeOnboarding() {
+            showDashboard();
+            loadUserData();
+        }
+
+        async function loadUserData() {
             if (currentUser) {
                 console.log('Loading user data for:', currentUser.email);
                 
-                const displayName = currentUser.displayName || currentUser.email.split('@')[0];
-                document.getElementById('userGreeting').textContent = `Welcome back, ${displayName}!`;
-                document.getElementById('userFullName').textContent = currentUser.displayName || 'Not set';
-                document.getElementById('userEmail').textContent = currentUser.email;
-
-                // Load additional user data from Firebase
-                const userRef = window.firebaseRef(window.firebaseDatabase, `users/${currentUser.uid}`);
-                window.firebaseGet(userRef).then((snapshot) => {
+                try {
+                    const userRef = window.firebaseRef(window.firebaseDatabase, `users/${currentUser.uid}`);
+                    const snapshot = await window.firebaseGet(userRef);
+                    
                     if (snapshot.exists()) {
                         const userData = snapshot.val();
                         console.log('User data loaded:', userData);
                         
                         // Update UI with user data
-                        if (userData.phone) {
-                            document.getElementById('userPhone').textContent = userData.phone;
+                        const displayName = userData.profile?.displayName || currentUser.displayName || currentUser.email.split('@')[0];
+                        document.getElementById('userGreeting').textContent = `Welcome back, ${displayName}!`;
+                        document.getElementById('userFullName').textContent = userData.profile?.displayName || 'Not set';
+                        document.getElementById('userEmail').textContent = currentUser.email;
+                        
+                        if (userData.profile?.phoneNumber) {
+                            document.getElementById('userPhone').textContent = userData.profile.phoneNumber;
                         }
-                        if (userData.balance !== undefined) {
-                            document.getElementById('balanceAmount').textContent = formatCurrency(userData.balance);
+                        
+                        if (userData.balance?.current !== undefined) {
+                            userBalance = userData.balance.current;
+                            updateBalanceDisplay();
                         }
+                        
+                        if (userData.security?.hasPinSet) {
+                            document.getElementById('pinStatus').textContent = 'Set';
+                        }
+                        
+                        // Setup real-time listeners
+                        setupRealtimeListeners();
                     }
-                }).catch((error) => {
+                } catch (error) {
                     console.error('Error loading user data:', error);
-                });
+                }
             }
+        }
+
+        function setupRealtimeListeners() {
+            // Listen for balance changes
+            const balanceRef = window.firebaseRef(window.firebaseDatabase, `users/${currentUser.uid}/balance/current`);
+            window.firebaseOnValue(balanceRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    userBalance = snapshot.val();
+                    updateBalanceDisplay();
+                }
+            });
+
+            // Listen for transactions
+            const transactionsRef = window.firebaseRef(window.firebaseDatabase, 'transactions');
+            window.firebaseOnValue(transactionsRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    const transactions = snapshot.val();
+                    updateTransactionHistory(transactions);
+                    updateMonthlyStats(transactions);
+                }
+            });
+        }
+
+        function updateBalanceDisplay() {
+            const balanceElement = document.getElementById('balanceAmount');
+            const currentBalanceElement = document.getElementById('currentBalance');
+            
+            if (balanceVisible) {
+                balanceElement.textContent = formatCurrency(userBalance);
+                if (currentBalanceElement) {
+                    currentBalanceElement.textContent = formatCurrency(userBalance);
+                }
+            } else {
+                balanceElement.textContent = '••••••••';
+                if (currentBalanceElement) {
+                    currentBalanceElement.textContent = '••••••••';
+                }
+            }
+        }
+
+        function updateTransactionHistory(transactions) {
+            const recentContainer = document.getElementById('recentTransactions');
+            const historyContainer = document.getElementById('transactionHistory');
+            
+            if (!transactions) {
+                const emptyMessage = `
+                    <div style="text-align: center; padding: 2rem; color: var(--text-muted);">
+                        <i class="fas fa-receipt" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                        <p>Belum ada transaksi</p>
+                    </div>
+                `;
+                if (recentContainer) recentContainer.innerHTML = emptyMessage;
+                if (historyContainer) historyContainer.innerHTML = emptyMessage;
+                return;
+            }
+
+            // Filter transactions for current user
+            const userTransactions = Object.entries(transactions)
+                .filter(([id, transaction]) => 
+                    transaction.fromUserId === currentUser.uid || transaction.toUserId === currentUser.uid
+                )
+                .map(([id, transaction]) => ({ id, ...transaction }))
+                .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+            if (userTransactions.length === 0) {
+                const emptyMessage = `
+                    <div style="text-align: center; padding: 2rem; color: var(--text-muted);">
+                        <i class="fas fa-receipt" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                        <p>Belum ada transaksi</p>
+                    </div>
+                `;
+                if (recentContainer) recentContainer.innerHTML = emptyMessage;
+                if (historyContainer) historyContainer.innerHTML = emptyMessage;
+                return;
+            }
+
+            const transactionHTML = userTransactions.map(transaction => {
+                const isIncoming = transaction.toUserId === currentUser.uid;
+                const counterpartName = isIncoming ? transaction.fromName : transaction.toName;
+                const counterpartPhone = isIncoming ? transaction.fromPhoneNumber : transaction.toPhoneNumber;
+                const amount = transaction.amount;
+                const type = isIncoming ? 'income' : 'expense';
+                const icon = isIncoming ? 'fas fa-arrow-down' : 'fas fa-arrow-up';
+
+                return `
+                    <div class="transaction-item">
+                        <div class="transaction-icon ${type}">
+                            <i class="${icon}"></i>
+                        </div>
+                        <div class="transaction-details">
+                            <div class="transaction-title">
+                                ${isIncoming ? 'Transfer dari' : 'Transfer ke'} ${counterpartName}
+                            </div>
+                            <div class="transaction-date">
+                                ${formatDateTime(transaction.timestamp)} • ${transaction.orderId}
+                            </div>
+                            <div style="font-size: 0.8rem; color: var(--text-muted);">
+                                ${counterpartPhone}
+                            </div>
+                        </div>
+                        <div class="transaction-amount ${type}">
+                            ${isIncoming ? '+' : '-'}${formatCurrency(amount)}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Update recent transactions (show only first 5)
+            if (recentContainer) {
+                const recentHTML = userTransactions.slice(0, 5).map(transaction => {
+                    const isIncoming = transaction.toUserId === currentUser.uid;
+                    const counterpartName = isIncoming ? transaction.fromName : transaction.toName;
+                    const amount = transaction.amount;
+                    const type = isIncoming ? 'income' : 'expense';
+                    const icon = isIncoming ? 'fas fa-arrow-down' : 'fas fa-arrow-up';
+
+                    return `
+                        <div class="transaction-item">
+                            <div class="transaction-icon ${type}">
+                                <i class="${icon}"></i>
+                            </div>
+                            <div class="transaction-details">
+                                <div class="transaction-title">
+                                    ${isIncoming ? 'Transfer dari' : 'Transfer ke'} ${counterpartName}
+                                </div>
+                                <div class="transaction-date">${formatDate(transaction.timestamp)}</div>
+                            </div>
+                            <div class="transaction-amount ${type}">
+                                ${isIncoming ? '+' : '-'}${formatCurrency(amount)}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                recentContainer.innerHTML = recentHTML;
+            }
+
+            // Update full transaction history
+            if (historyContainer) {
+                historyContainer.innerHTML = transactionHTML;
+            }
+        }
+
+        function updateMonthlyStats(transactions) {
+            if (!transactions) return;
+
+            const currentMonth = new Date().getMonth();
+            const currentYear = new Date().getFullYear();
+
+            let monthlyIncome = 0;
+            let monthlyExpense = 0;
+
+            Object.values(transactions).forEach(transaction => {
+                const transactionDate = new Date(transaction.timestamp);
+                if (transactionDate.getMonth() === currentMonth && transactionDate.getFullYear() === currentYear) {
+                    if (transaction.toUserId === currentUser.uid) {
+                        monthlyIncome += transaction.amount;
+                    } else if (transaction.fromUserId === currentUser.uid) {
+                        monthlyExpense += transaction.amount;
+                    }
+                }
+            });
+
+            document.getElementById('monthlyIncome').textContent = `+${formatCurrency(monthlyIncome)}`;
+            document.getElementById('monthlyExpense').textContent = `-${formatCurrency(monthlyExpense)}`;
         }
 
         function loadDashboardData() {
             console.log('Loading dashboard data...');
-            
-            // Load recent transactions
-            loadRecentTransactions();
-            
-            // Update any other dashboard elements as needed
-        }
-
-        function loadRecentTransactions() {
-            const transactionsContainer = document.getElementById('recentTransactions');
-            
-            // Sample transactions (in real app, this would come from Firebase)
-            const sampleTransactions = [
-                {
-                    id: 1,
-                    title: 'Salary Deposit',
-                    date: '2025-01-15',
-                    amount: 5000000,
-                    type: 'income',
-                    icon: 'fas fa-building'
-                },
-                {
-                    id: 2,
-                    title: 'Grocery Shopping',
-                    date: '2025-01-14',
-                    amount: -250000,
-                    type: 'expense',
-                    icon: 'fas fa-shopping-cart'
-                },
-                {
-                    id: 3,
-                    title: 'Transfer to John',
-                    date: '2025-01-13',
-                    amount: -500000,
-                    type: 'expense',
-                    icon: 'fas fa-user'
-                },
-                {
-                    id: 4,
-                    title: 'Investment Return',
-                    date: '2025-01-12',
-                    amount: 150000,
-                    type: 'income',
-                    icon: 'fas fa-chart-line'
-                }
-            ];
-
-            transactionsContainer.innerHTML = sampleTransactions.map(transaction => `
-                <div class="transaction-item">
-                    <div class="transaction-icon ${transaction.type}">
-                        <i class="${transaction.icon}"></i>
-                    </div>
-                    <div class="transaction-details">
-                        <div class="transaction-title">${transaction.title}</div>
-                        <div class="transaction-date">${formatDate(transaction.date)}</div>
-                    </div>
-                    <div class="transaction-amount ${transaction.type}">
-                        ${transaction.amount > 0 ? '+' : ''}${formatCurrency(Math.abs(transaction.amount))}
-                    </div>
-                </div>
-            `).join('');
+            loadUserData();
         }
 
         // Navigation functions
@@ -1423,25 +2074,34 @@
             document.querySelectorAll('.nav-link').forEach(link => {
                 link.classList.remove('active');
             });
-            event.target.closest('.nav-link').classList.add('active');
+            
+            // Find and activate the correct nav link
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => {
+                if (link.getAttribute('onclick') && link.getAttribute('onclick').includes(sectionName)) {
+                    link.classList.add('active');
+                }
+            });
+
+            // Reset transfer form when switching to transfer section
+            if (sectionName === 'transfer') {
+                resetTransfer();
+            }
         }
 
         // Balance toggle
         function toggleBalance() {
-            const balanceAmount = document.getElementById('balanceAmount');
             const toggleIcon = document.getElementById('balanceToggleIcon');
             
+            balanceVisible = !balanceVisible;
+            
             if (balanceVisible) {
-                balanceAmount.textContent = '••••••••';
-                toggleIcon.className = 'fas fa-eye-slash';
-                balanceVisible = false;
-            } else {
-                // Get the actual balance from current user data
-                let actualBalance = 'Rp 12,500,000'; // Default
-                balanceAmount.textContent = actualBalance;
                 toggleIcon.className = 'fas fa-eye';
-                balanceVisible = true;
+            } else {
+                toggleIcon.className = 'fas fa-eye-slash';
             }
+            
+            updateBalanceDisplay();
         }
 
         // Theme toggle
@@ -1460,13 +2120,566 @@
             }
         }
 
+        // Transfer functions
+        function resetTransfer() {
+            currentStep = 1;
+            transferData = {};
+            
+            // Hide all steps
+            document.querySelectorAll('.transfer-step').forEach(step => {
+                step.classList.remove('active');
+            });
+            
+            // Show first step
+            document.getElementById('searchStep').classList.add('active');
+            
+            // Clear inputs
+            document.getElementById('recipientPhone').value = '';
+            document.getElementById('transferAmount').value = '';
+            
+            // Clear PIN inputs
+            ['tpin1', 'tpin2', 'tpin3', 'tpin4', 'tpin5', 'tpin6'].forEach(id => {
+                const input = document.getElementById(id);
+                if (input) {
+                    input.value = '';
+                    input.classList.remove('filled');
+                }
+            });
+        }
+
+        async function searchRecipient() {
+            const phoneNumber = document.getElementById('recipientPhone').value.trim();
+            
+            if (!phoneNumber) {
+                showMessage('Masukkan nomor telepon penerima', 'error');
+                return;
+            }
+
+            if (!phoneNumber.startsWith('+62')) {
+                showMessage('Nomor telepon harus dimulai dengan +62', 'error');
+                return;
+            }
+
+            if (phoneNumber === currentUser.phoneNumber) {
+                showMessage('Tidak dapat transfer ke nomor sendiri', 'error');
+                return;
+            }
+
+            try {
+                // Search in phone directory
+                const phoneRef = window.firebaseRef(window.firebaseDatabase, `phoneDirectory/${phoneNumber}`);
+                const snapshot = await window.firebaseGet(phoneRef);
+                
+                if (!snapshot.exists()) {
+                    showMessage('Nomor telepon tidak terdaftar', 'error');
+                    return;
+                }
+
+                const recipientUserId = snapshot.val();
+                
+                // Get recipient user data
+                const userRef = window.firebaseRef(window.firebaseDatabase, `users/${recipientUserId}`);
+                const userSnapshot = await window.firebaseGet(userRef);
+                
+                if (!userSnapshot.exists()) {
+                    showMessage('Pengguna tidak ditemukan', 'error');
+                    return;
+                }
+
+                const recipientData = userSnapshot.val();
+                transferData.recipient = {
+                    userId: recipientUserId,
+                    name: recipientData.profile.displayName,
+                    phoneNumber: phoneNumber
+                };
+
+                showRecipientConfirmation();
+            } catch (error) {
+                console.error('Error searching recipient:', error);
+                showMessage('Gagal mencari penerima. Silakan coba lagi.', 'error');
+            }
+        }
+
+        function showRecipientConfirmation() {
+            const recipientCard = document.getElementById('recipientCard');
+            const recipient = transferData.recipient;
+            
+            recipientCard.innerHTML = `
+                <div class="recipient-info">
+                    <div class="recipient-avatar">
+                        ${recipient.name.charAt(0).toUpperCase()}
+                    </div>
+                    <div class="recipient-details">
+                        <h3>${recipient.name}</h3>
+                        <p>${recipient.phoneNumber}</p>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('searchStep').classList.remove('active');
+            document.getElementById('confirmRecipientStep').classList.add('active');
+            currentStep = 2;
+        }
+
+        function backToSearch() {
+            document.getElementById('confirmRecipientStep').classList.remove('active');
+            document.getElementById('searchStep').classList.add('active');
+            currentStep = 1;
+        }
+
+        function proceedToAmount() {
+            document.getElementById('confirmRecipientStep').classList.remove('active');
+            document.getElementById('amountStep').classList.add('active');
+            updateBalanceDisplay();
+            currentStep = 3;
+        }
+
+        function backToRecipient() {
+            document.getElementById('amountStep').classList.remove('active');
+            document.getElementById('confirmRecipientStep').classList.add('active');
+            currentStep = 2;
+        }
+
+        function setAmount(amount) {
+            document.getElementById('transferAmount').value = amount;
+        }
+
+        function proceedToConfirm() {
+            const amount = parseInt(document.getElementById('transferAmount').value);
+            
+            if (!amount || amount < 1000) {
+                showMessage('Jumlah transfer minimal Rp 1.000', 'error');
+                return;
+            }
+
+            if (amount > userBalance) {
+                showMessage('Saldo tidak mencukupi', 'error');
+                return;
+            }
+
+            transferData.amount = amount;
+            showTransferSummary();
+        }
+
+        function showTransferSummary() {
+            const summaryContainer = document.getElementById('transferSummary');
+            const recipient = transferData.recipient;
+            const amount = transferData.amount;
+
+            summaryContainer.innerHTML = `
+                <div class="recipient-card">
+                    <div class="recipient-info">
+                        <div class="recipient-avatar">
+                            ${recipient.name.charAt(0).toUpperCase()}
+                        </div>
+                        <div class="recipient-details">
+                            <h3>${recipient.name}</h3>
+                            <p>${recipient.phoneNumber}</p>
+                        </div>
+                    </div>
+                </div>
+                <div style="background: var(--bg-tertiary); padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <span>Jumlah Transfer:</span>
+                        <span style="font-weight: 600;">${formatCurrency(amount)}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <span>Biaya Admin:</span>
+                        <span style="font-weight: 600;">Gratis</span>
+                    </div>
+                    <hr style="margin: 0.5rem 0; border: none; border-top: 1px solid var(--border-color);">
+                    <div style="display: flex; justify-content: space-between; font-weight: 700; font-size: 1.1rem;">
+                        <span>Total:</span>
+                        <span>${formatCurrency(amount)}</span>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('amountStep').classList.remove('active');
+            document.getElementById('confirmTransferStep').classList.add('active');
+            currentStep = 4;
+        }
+
+        function backToAmount() {
+            document.getElementById('confirmTransferStep').classList.remove('active');
+            document.getElementById('amountStep').classList.add('active');
+            currentStep = 3;
+        }
+
+        function proceedToPIN() {
+            document.getElementById('confirmTransferStep').classList.remove('active');
+            document.getElementById('pinStep').classList.add('active');
+            setupTransferPINInput();
+            currentStep = 5;
+        }
+
+        function setupTransferPINInput() {
+            const pinInputs = ['tpin1', 'tpin2', 'tpin3', 'tpin4', 'tpin5', 'tpin6'];
+            
+            pinInputs.forEach((id, index) => {
+                const input = document.getElementById(id);
+                if (input) {
+                    input.value = '';
+                    input.classList.remove('filled');
+                    
+                    input.addEventListener('input', function() {
+                        if (this.value.length === 1) {
+                            this.classList.add('filled');
+                            if (index < pinInputs.length - 1) {
+                                document.getElementById(pinInputs[index + 1]).focus();
+                            }
+                        } else {
+                            this.classList.remove('filled');
+                        }
+                    });
+                    
+                    input.addEventListener('keydown', function(e) {
+                        if (e.key === 'Backspace' && this.value === '' && index > 0) {
+                            document.getElementById(pinInputs[index - 1]).focus();
+                        }
+                    });
+                }
+            });
+        }
+
+        function backToConfirm() {
+            document.getElementById('pinStep').classList.remove('active');
+            document.getElementById('confirmTransferStep').classList.add('active');
+            currentStep = 4;
+        }
+
+        async function executeTransfer() {
+            const pinInputs = ['tpin1', 'tpin2', 'tpin3', 'tpin4', 'tpin5', 'tpin6'];
+            const pin = pinInputs.map(id => document.getElementById(id).value).join('');
+            
+            if (pin.length !== 6) {
+                showMessage('Masukkan PIN 6 digit', 'error');
+                return;
+            }
+
+            try {
+                // Verify PIN
+                const userRef = window.firebaseRef(window.firebaseDatabase, `users/${currentUser.uid}/security/transactionPin`);
+                const pinSnapshot = await window.firebaseGet(userRef);
+                
+                if (!pinSnapshot.exists()) {
+                    showMessage('PIN belum diatur', 'error');
+                    return;
+                }
+
+                const storedPin = pinSnapshot.val();
+                const hashedPin = btoa(pin); // Simple base64 encoding for demo
+                
+                if (hashedPin !== storedPin) {
+                    showMessage('PIN salah', 'error');
+                    return;
+                }
+
+                // Execute transfer using Firebase transaction
+                const transferResult = await executeFirebaseTransfer();
+                
+                if (transferResult.success) {
+                    showTransferSuccess(transferResult.orderId);
+                } else {
+                    showMessage(transferResult.error, 'error');
+                }
+            } catch (error) {
+                console.error('Error executing transfer:', error);
+                showMessage('Transfer gagal. Silakan coba lagi.', 'error');
+            }
+        }
+
+        async function executeFirebaseTransfer() {
+            try {
+                const orderId = generateOrderId();
+                const timestamp = new Date().toISOString();
+                
+                // Get current user data
+                const currentUserRef = window.firebaseRef(window.firebaseDatabase, `users/${currentUser.uid}`);
+                const currentUserSnapshot = await window.firebaseGet(currentUserRef);
+                const currentUserData = currentUserSnapshot.val();
+
+                // Create transaction record
+                const transactionData = {
+                    orderId: orderId,
+                    fromUserId: currentUser.uid,
+                    toUserId: transferData.recipient.userId,
+                    fromPhoneNumber: currentUserData.profile.phoneNumber,
+                    toPhoneNumber: transferData.recipient.phoneNumber,
+                    fromName: currentUserData.profile.displayName,
+                    toName: transferData.recipient.name,
+                    amount: transferData.amount,
+                    type: 'transfer',
+                    status: 'completed',
+                    timestamp: timestamp,
+                    description: `Transfer to ${transferData.recipient.name}`,
+                    method: 'manual'
+                };
+
+                // Use Firebase transaction to ensure atomicity
+                const updates = {};
+                
+                // Add transaction record
+                const transactionRef = window.firebasePush(window.firebaseRef(window.firebaseDatabase, 'transactions'));
+                updates[`transactions/${transactionRef.key}`] = transactionData;
+                
+                // Update balances
+                updates[`users/${currentUser.uid}/balance/current`] = userBalance - transferData.amount;
+                updates[`users/${currentUser.uid}/balance/lastUpdated`] = window.firebaseServerTimestamp();
+                
+                // Get recipient balance
+                const recipientBalanceRef = window.firebaseRef(window.firebaseDatabase, `users/${transferData.recipient.userId}/balance/current`);
+                const recipientBalanceSnapshot = await window.firebaseGet(recipientBalanceRef);
+                const recipientBalance = recipientBalanceSnapshot.exists() ? recipientBalanceSnapshot.val() : 0;
+                
+                updates[`users/${transferData.recipient.userId}/balance/current`] = recipientBalance + transferData.amount;
+                updates[`users/${transferData.recipient.userId}/balance/lastUpdated`] = window.firebaseServerTimestamp();
+
+                await window.firebaseUpdate(window.firebaseRef(window.firebaseDatabase), updates);
+
+                return { success: true, orderId: orderId };
+            } catch (error) {
+                console.error('Firebase transfer error:', error);
+                return { success: false, error: 'Transfer gagal. Silakan coba lagi.' };
+            }
+        }
+
+        function generateOrderId() {
+            const date = new Date();
+            const dateStr = date.getFullYear().toString() + 
+                          (date.getMonth() + 1).toString().padStart(2, '0') + 
+                          date.getDate().toString().padStart(2, '0');
+            const randomNum = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+            return `TXN-${dateStr}-${randomNum}`;
+        }
+
+        function showTransferSuccess(orderId) {
+            const successDetails = document.getElementById('successDetails');
+            const recipient = transferData.recipient;
+            const amount = transferData.amount;
+
+            successDetails.innerHTML = `
+                <div style="background: var(--bg-tertiary); padding: 1.5rem; border-radius: 12px; margin: 1rem 0;">
+                    <div style="text-align: center; margin-bottom: 1rem;">
+                        <div style="font-size: 1.5rem; font-weight: 700; color: var(--text-primary);">
+                            ${formatCurrency(amount)}
+                        </div>
+                        <div style="color: var(--text-secondary);">berhasil dikirim ke</div>
+                        <div style="font-weight: 600; color: var(--text-primary);">${recipient.name}</div>
+                        <div style="color: var(--text-secondary); font-size: 0.9rem;">${recipient.phoneNumber}</div>
+                    </div>
+                    <hr style="margin: 1rem 0; border: none; border-top: 1px solid var(--border-color);">
+                    <div style="font-size: 0.9rem; color: var(--text-secondary);">
+                        <div>Order ID: <span style="font-weight: 600;">${orderId}</span></div>
+                        <div>Waktu: <span style="font-weight: 600;">${formatDateTime(new Date().toISOString())}</span></div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('pinStep').classList.remove('active');
+            document.getElementById('successStep').classList.add('active');
+            currentStep = 6;
+        }
+
+        // QR Code functions
+        function showQROptions() {
+            showModal('QR Pay', `
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="quick-action" onclick="startQRScanner()" style="margin: 0;">
+                        <i class="fas fa-camera"></i>
+                        <div>Scan QR Code</div>
+                    </div>
+                    <div class="quick-action" onclick="showMyQRCode()" style="margin: 0;">
+                        <i class="fas fa-qrcode"></i>
+                        <div>QR Code Saya</div>
+                    </div>
+                </div>
+            `);
+        }
+
+        async function showMyQRCode() {
+            try {
+                const userRef = window.firebaseRef(window.firebaseDatabase, `users/${currentUser.uid}`);
+                const snapshot = await window.firebaseGet(userRef);
+                
+                if (!snapshot.exists()) {
+                    showMessage('Data pengguna tidak ditemukan', 'error');
+                    return;
+                }
+
+                const userData = snapshot.val();
+                const phoneNumber = userData.profile?.phoneNumber;
+                
+                if (!phoneNumber) {
+                    showMessage('Nomor telepon belum diatur', 'error');
+                    return;
+                }
+
+                const qrData = JSON.stringify({
+                    type: 'premiumbank_transfer',
+                    phoneNumber: phoneNumber,
+                    name: userData.profile.displayName,
+                    timestamp: new Date().toISOString()
+                });
+
+                showModal('QR Code Saya', `
+                    <div class="qr-container">
+                        <div style="margin-bottom: 1rem;">
+                            <h3>${userData.profile.displayName}</h3>
+                            <p style="color: var(--text-secondary);">${phoneNumber}</p>
+                        </div>
+                        <div class="qr-code-display" id="myQRCode">
+                            <div class="loading">Generating QR Code...</div>
+                        </div>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 1rem;">
+                            Tunjukkan QR code ini kepada pengirim untuk menerima transfer
+                        </p>
+                    </div>
+                `);
+
+                // Generate QR code
+                setTimeout(() => {
+                    QRCode.toCanvas(qrData, { width: 200, margin: 2 }, (error, canvas) => {
+                        if (error) {
+                            console.error('QR Code generation error:', error);
+                            document.getElementById('myQRCode').innerHTML = '<p>Gagal membuat QR Code</p>';
+                        } else {
+                            document.getElementById('myQRCode').innerHTML = '';
+                            document.getElementById('myQRCode').appendChild(canvas);
+                        }
+                    });
+                }, 100);
+            } catch (error) {
+                console.error('Error showing QR code:', error);
+                showMessage('Gagal menampilkan QR code', 'error');
+            }
+        }
+
+        function startQRScanner() {
+            showModal('Scan QR Code', `
+                <div class="qr-container">
+                    <div class="qr-scanner-container">
+                        <video id="qrVideo" class="qr-video" autoplay></video>
+                        <div class="qr-overlay"></div>
+                    </div>
+                    <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 1rem;">
+                        Arahkan kamera ke QR code penerima
+                    </p>
+                    <button class="btn btn-secondary" onclick="stopQRScanner()" style="margin-top: 1rem;">
+                        Batal
+                    </button>
+                </div>
+            `);
+
+            // Start camera
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+                .then(stream => {
+                    const video = document.getElementById('qrVideo');
+                    video.srcObject = stream;
+                    video.play();
+                    
+                    // Start QR detection
+                    const canvas = document.createElement('canvas');
+                    const context = canvas.getContext('2d');
+                    
+                    const scanQR = () => {
+                        if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                            canvas.height = video.videoHeight;
+                            canvas.width = video.videoWidth;
+                            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                            
+                            const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                            const code = jsQR(imageData.data, imageData.width, imageData.height);
+                            
+                            if (code) {
+                                try {
+                                    const qrData = JSON.parse(code.data);
+                                    if (qrData.type === 'premiumbank_transfer') {
+                                        stopQRScanner();
+                                        processQRTransfer(qrData);
+                                        return;
+                                    }
+                                } catch (e) {
+                                    // Invalid QR code format
+                                }
+                            }
+                        }
+                        requestAnimationFrame(scanQR);
+                    };
+                    
+                    scanQR();
+                })
+                .catch(error => {
+                    console.error('Camera access error:', error);
+                    showMessage('Gagal mengakses kamera', 'error');
+                    closeModal();
+                });
+        }
+
+        function stopQRScanner() {
+            const video = document.getElementById('qrVideo');
+            if (video && video.srcObject) {
+                video.srcObject.getTracks().forEach(track => track.stop());
+            }
+            closeModal();
+        }
+
+        async function processQRTransfer(qrData) {
+            try {
+                // Search for user by phone number
+                const phoneRef = window.firebaseRef(window.firebaseDatabase, `phoneDirectory/${qrData.phoneNumber}`);
+                const snapshot = await window.firebaseGet(phoneRef);
+                
+                if (!snapshot.exists()) {
+                    showMessage('Pengguna tidak ditemukan', 'error');
+                    return;
+                }
+
+                const recipientUserId = snapshot.val();
+                
+                if (recipientUserId === currentUser.uid) {
+                    showMessage('Tidak dapat transfer ke diri sendiri', 'error');
+                    return;
+                }
+
+                // Get recipient data
+                const userRef = window.firebaseRef(window.firebaseDatabase, `users/${recipientUserId}`);
+                const userSnapshot = await window.firebaseGet(userRef);
+                
+                if (!userSnapshot.exists()) {
+                    showMessage('Data pengguna tidak ditemukan', 'error');
+                    return;
+                }
+
+                const recipientData = userSnapshot.val();
+                transferData.recipient = {
+                    userId: recipientUserId,
+                    name: recipientData.profile.displayName,
+                    phoneNumber: qrData.phoneNumber
+                };
+
+                // Switch to transfer section and show amount step
+                showSection('transfer');
+                document.getElementById('searchStep').classList.remove('active');
+                document.getElementById('confirmRecipientStep').classList.remove('active');
+                document.getElementById('amountStep').classList.add('active');
+                updateBalanceDisplay();
+                currentStep = 3;
+
+                showMessage(`QR Code berhasil dipindai! Transfer ke ${qrData.name}`, 'success');
+            } catch (error) {
+                console.error('Error processing QR transfer:', error);
+                showMessage('Gagal memproses QR code', 'error');
+            }
+        }
+
         // Settings functions
         function editProfile() {
             showModal('Edit Profile', `
-                <form onsubmit="saveProfile(event)">
+                <form onsubmit="saveProfileEdit(event)">
                     <div class="form-group">
                         <label class="form-label">Full Name</label>
-                        <input type="text" class="form-input" value="${currentUser?.displayName || ''}" required>
+                        <input type="text" class="form-input" id="editFullName" value="${document.getElementById('userFullName').textContent}" required>
                     </div>
                     <div class="form-group">
                         <button type="submit" class="btn btn-primary">Save Changes</button>
@@ -1476,39 +2689,52 @@
             `);
         }
 
-        function editPhone() {
-            showModal('Change Phone Number', `
-                <form onsubmit="savePhone(event)">
-                    <div class="form-group">
-                        <label class="form-label">New Phone Number</label>
-                        <input type="tel" class="form-input" placeholder="+62 812-3456-7890" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Verification Code</label>
-                        <input type="text" class="form-input" placeholder="Enter OTP" required>
-                    </div>
-                    <div class="form-group">
-                        <button type="submit" class="btn btn-primary">Verify & Save</button>
-                        <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-                    </div>
-                </form>
-            `);
+        async function saveProfileEdit(event) {
+            event.preventDefault();
+            
+            const newName = document.getElementById('editFullName').value;
+            
+            try {
+                const updates = {};
+                updates[`users/${currentUser.uid}/profile/displayName`] = newName;
+                
+                await window.firebaseUpdate(window.firebaseRef(window.firebaseDatabase), updates);
+                
+                document.getElementById('userFullName').textContent = newName;
+                document.getElementById('userGreeting').textContent = `Welcome back, ${newName}!`;
+                
+                showMessage('Profile updated successfully!', 'success');
+                closeModal();
+            } catch (error) {
+                console.error('Error updating profile:', error);
+                showMessage('Failed to update profile', 'error');
+            }
         }
 
         function changePIN() {
             showModal('Change Transaction PIN', `
-                <form onsubmit="savePIN(event)">
+                <form onsubmit="saveNewPIN(event)">
                     <div class="form-group">
                         <label class="form-label">Current PIN</label>
-                        <input type="password" class="form-input" maxlength="6" required>
+                        <div class="pin-input-container">
+                            <input type="password" class="pin-digit" maxlength="1" id="currentPin1">
+                            <input type="password" class="pin-digit" maxlength="1" id="currentPin2">
+                            <input type="password" class="pin-digit" maxlength="1" id="currentPin3">
+                            <input type="password" class="pin-digit" maxlength="1" id="currentPin4">
+                            <input type="password" class="pin-digit" maxlength="1" id="currentPin5">
+                            <input type="password" class="pin-digit" maxlength="1" id="currentPin6">
+                        </div>
                     </div>
                     <div class="form-group">
                         <label class="form-label">New PIN</label>
-                        <input type="password" class="form-input" maxlength="6" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Confirm New PIN</label>
-                        <input type="password" class="form-input" maxlength="6" required>
+                        <div class="pin-input-container">
+                            <input type="password" class="pin-digit" maxlength="1" id="newPin1">
+                            <input type="password" class="pin-digit" maxlength="1" id="newPin2">
+                            <input type="password" class="pin-digit" maxlength="1" id="newPin3">
+                            <input type="password" class="pin-digit" maxlength="1" id="newPin4">
+                            <input type="password" class="pin-digit" maxlength="1" id="newPin5">
+                            <input type="password" class="pin-digit" maxlength="1" id="newPin6">
+                        </div>
                     </div>
                     <div class="form-group">
                         <button type="submit" class="btn btn-primary">Change PIN</button>
@@ -1516,46 +2742,88 @@
                     </div>
                 </form>
             `);
-        }
-
-        function unlinkAccount(accountType) {
-            const accountNames = {
-                'bca': 'Bank BCA',
-                'gopay': 'GoPay'
-            };
             
-            showModal('Remove Linked Account', `
-                <div class="message warning">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    Are you sure you want to remove ${accountNames[accountType]}? This action cannot be undone.
-                </div>
-                <div class="form-group">
-                    <button class="btn btn-danger" onclick="confirmUnlinkAccount('${accountType}')">Remove Account</button>
-                    <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-                </div>
-            `);
+            // Setup PIN inputs
+            setupModalPINInputs();
         }
 
-        function linkNewAccount() {
-            showModal('Link New Account', `
-                <div class="form-group">
-                    <label class="form-label">Select Account Type</label>
-                    <select class="form-input" required>
-                        <option value="">Choose account type</option>
-                        <option value="bank">Bank Account</option>
-                        <option value="ewallet">E-Wallet</option>
-                        <option value="credit">Credit Card</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Account Number</label>
-                    <input type="text" class="form-input" placeholder="Enter account number" required>
-                </div>
-                <div class="form-group">
-                    <button class="btn btn-primary" onclick="confirmLinkAccount()">Link Account</button>
-                    <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-                </div>
-            `);
+        function setupModalPINInputs() {
+            const pinGroups = [
+                ['currentPin1', 'currentPin2', 'currentPin3', 'currentPin4', 'currentPin5', 'currentPin6'],
+                ['newPin1', 'newPin2', 'newPin3', 'newPin4', 'newPin5', 'newPin6']
+            ];
+            
+            pinGroups.forEach(group => {
+                group.forEach((id, index) => {
+                    const input = document.getElementById(id);
+                    if (input) {
+                        input.addEventListener('input', function() {
+                            if (this.value.length === 1) {
+                                this.classList.add('filled');
+                                if (index < group.length - 1) {
+                                    document.getElementById(group[index + 1]).focus();
+                                }
+                            } else {
+                                this.classList.remove('filled');
+                            }
+                        });
+                        
+                        input.addEventListener('keydown', function(e) {
+                            if (e.key === 'Backspace' && this.value === '' && index > 0) {
+                                document.getElementById(group[index - 1]).focus();
+                            }
+                        });
+                    }
+                });
+            });
+        }
+
+        async function saveNewPIN(event) {
+            event.preventDefault();
+            
+            const currentPinInputs = ['currentPin1', 'currentPin2', 'currentPin3', 'currentPin4', 'currentPin5', 'currentPin6'];
+            const newPinInputs = ['newPin1', 'newPin2', 'newPin3', 'newPin4', 'newPin5', 'newPin6'];
+            
+            const currentPin = currentPinInputs.map(id => document.getElementById(id).value).join('');
+            const newPin = newPinInputs.map(id => document.getElementById(id).value).join('');
+            
+            if (currentPin.length !== 6 || newPin.length !== 6) {
+                showMessage('PIN harus 6 digit', 'error');
+                return;
+            }
+
+            try {
+                // Verify current PIN
+                const userRef = window.firebaseRef(window.firebaseDatabase, `users/${currentUser.uid}/security/transactionPin`);
+                const pinSnapshot = await window.firebaseGet(userRef);
+                
+                if (!pinSnapshot.exists()) {
+                    showMessage('PIN belum diatur', 'error');
+                    return;
+                }
+
+                const storedPin = pinSnapshot.val();
+                const hashedCurrentPin = btoa(currentPin);
+                
+                if (hashedCurrentPin !== storedPin) {
+                    showMessage('PIN lama salah', 'error');
+                    return;
+                }
+
+                // Save new PIN
+                const hashedNewPin = btoa(newPin);
+                const updates = {};
+                updates[`users/${currentUser.uid}/security/transactionPin`] = hashedNewPin;
+                updates[`users/${currentUser.uid}/security/pinLastChanged`] = window.firebaseServerTimestamp();
+
+                await window.firebaseUpdate(window.firebaseRef(window.firebaseDatabase), updates);
+                
+                showMessage('PIN berhasil diubah!', 'success');
+                closeModal();
+            } catch (error) {
+                console.error('Error changing PIN:', error);
+                showMessage('Gagal mengubah PIN', 'error');
+            }
         }
 
         // Modal functions
@@ -1567,40 +2835,12 @@
 
         function closeModal() {
             document.getElementById('actionModal').classList.remove('active');
-        }
-
-        // Form submission handlers
-        function saveProfile(event) {
-            event.preventDefault();
-            // In real app, save to Firebase
-            showMessage('Profile updated successfully!', 'success');
-            closeModal();
-        }
-
-        function savePhone(event) {
-            event.preventDefault();
-            // In real app, verify OTP and save to Firebase
-            showMessage('Phone number updated successfully!', 'success');
-            closeModal();
-        }
-
-        function savePIN(event) {
-            event.preventDefault();
-            // In real app, verify current PIN and save new one
-            showMessage('Transaction PIN changed successfully!', 'success');
-            closeModal();
-        }
-
-        function confirmUnlinkAccount(accountType) {
-            // In real app, remove from Firebase
-            showMessage('Account removed successfully!', 'success');
-            closeModal();
-        }
-
-        function confirmLinkAccount() {
-            // In real app, verify and save to Firebase
-            showMessage('Account linked successfully!', 'success');
-            closeModal();
+            
+            // Stop any running video streams
+            const video = document.getElementById('qrVideo');
+            if (video && video.srcObject) {
+                video.srcObject.getTracks().forEach(track => track.stop());
+            }
         }
 
         // Utility functions
@@ -1618,6 +2858,17 @@
                 day: 'numeric',
                 month: 'short',
                 year: 'numeric'
+            });
+        }
+
+        function formatDateTime(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('id-ID', {
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
             });
         }
 
@@ -1644,42 +2895,9 @@
         // Other functions
         function showNotifications() {
             showModal('Notifications', `
-                <div class="transaction-item">
-                    <div class="transaction-icon" style="background: var(--info-color);">
-                        <i class="fas fa-info"></i>
-                    </div>
-                    <div class="transaction-details">
-                        <div class="transaction-title">New feature available</div>
-                        <div class="transaction-date">2 hours ago</div>
-                    </div>
-                </div>
-                <div class="transaction-item">
-                    <div class="transaction-icon" style="background: var(--warning-color);">
-                        <i class="fas fa-exclamation"></i>
-                    </div>
-                    <div class="transaction-details">
-                        <div class="transaction-title">Payment reminder</div>
-                        <div class="transaction-date">1 day ago</div>
-                    </div>
-                </div>
-                <div class="transaction-item">
-                    <div class="transaction-icon" style="background: var(--secondary-color);">
-                        <i class="fas fa-check"></i>
-                    </div>
-                    <div class="transaction-details">
-                        <div class="transaction-title">Transfer completed</div>
-                        <div class="transaction-date">2 days ago</div>
-                    </div>
-                </div>
-            `);
-        }
-
-        function showQRScanner() {
-            showModal('QR Code Scanner', `
-                <div style="text-align: center; padding: 2rem;">
-                    <i class="fas fa-qrcode" style="font-size: 4rem; color: var(--text-muted); margin-bottom: 1rem;"></i>
-                    <p>QR Scanner feature coming soon!</p>
-                    <button class="btn btn-primary" onclick="closeModal()">Close</button>
+                <div style="text-align: center; padding: 2rem; color: var(--text-muted);">
+                    <i class="fas fa-bell" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                    <p>Belum ada notifikasi</p>
                 </div>
             `);
         }
@@ -1702,12 +2920,9 @@
 
         // Placeholder functions for other settings
         function editEmail() { showMessage('Email change feature coming soon!', 'warning'); }
+        function editPhone() { showMessage('Phone change feature coming soon!', 'warning'); }
         function changePassword() { showMessage('Password change feature coming soon!', 'warning'); }
         function toggle2FA() { showMessage('2FA management feature coming soon!', 'warning'); }
-        function manageDevices() { showMessage('Device management feature coming soon!', 'warning'); }
-        function manageNotifications() { showMessage('Notification settings feature coming soon!', 'warning'); }
-        function changeLanguage() { showMessage('Language settings feature coming soon!', 'warning'); }
-        function changeCurrency() { showMessage('Currency settings feature coming soon!', 'warning'); }
 
         // Mobile responsiveness
         function toggleSidebar() {
@@ -1725,8 +2940,10 @@
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 closeModal();
+                stopQRScanner();
             }
         });
     </script>
 </body>
 </html>
+
