@@ -13,15 +13,15 @@
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, FacebookAuthProvider, GithubAuthProvider, TwitterAuthProvider, signInWithPopup } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
         import { getDatabase, ref, set, push, onValue, serverTimestamp, onDisconnect, remove } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 
-        // Firebase Configuration
+        // Firebase Configuration - GUNAKAN KONFIGURASI YANG BENAR
         const firebaseConfig = {
-            apiKey: "AIzaSyBvOkBwGyqsaIt5dRyrSXmVBjVdKymyunI",
-            authDomain: "premium-login-form.firebaseapp.com",
-            databaseURL: "https://premium-login-form-default-rtdb.firebaseio.com",
-            projectId: "premium-login-form",
-            storageBucket: "premium-login-form.appspot.com",
-            messagingSenderId: "123456789012",
-            appId: "1:123456789012:web:0123456789abcdef"
+            apiKey: "AIzaSyAu9GP9Ie1ohwunpapWBN7H8Kecby2v_qI",
+            authDomain: "imsfinance-bf5fb.firebaseapp.com",
+            databaseURL: "https://imsfinance-bf5fb-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "imsfinance-bf5fb",
+            storageBucket: "imsfinance-bf5fb.firebasestorage.app",
+            messagingSenderId: "752636802657",
+            appId: "1:752636802657:web:ece790a75cd41660005c20"
         };
 
         // Initialize Firebase
@@ -317,6 +317,9 @@
             margin-bottom: 25px;
             position: relative;
             overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .submit-btn:hover {
@@ -326,6 +329,12 @@
 
         .submit-btn:active {
             transform: translateY(0);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
         }
 
         .submit-btn::before {
@@ -410,6 +419,10 @@
             border-top-color: white;
             animation: spin 1s ease-in-out infinite;
             margin-right: 10px;
+        }
+
+        .loading.show {
+            display: inline-block;
         }
 
         @keyframes spin {
@@ -628,6 +641,66 @@
                 font-size: 20px;
             }
         }
+
+        /* Success Screen */
+        .success-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            color: white;
+            text-align: center;
+        }
+
+        .success-screen.show {
+            display: flex;
+            animation: slideInUp 0.5s ease-out;
+        }
+
+        @keyframes slideInUp {
+            from {
+                transform: translateY(100%);
+            }
+            to {
+                transform: translateY(0);
+            }
+        }
+
+        .success-icon {
+            font-size: 5rem;
+            margin-bottom: 2rem;
+            animation: bounceIn 0.8s ease-out;
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .success-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .success-message {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .redirect-message {
+            font-size: 1rem;
+            opacity: 0.8;
+        }
     </style>
 </head>
 <body>
@@ -645,8 +718,18 @@
         <div class="particle"></div>
     </div>
 
+    <!-- Success Screen -->
+    <div class="success-screen" id="successScreen">
+        <div class="success-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="success-title">Login Berhasil!</div>
+        <div class="success-message" id="successMessage">Selamat datang kembali!</div>
+        <div class="redirect-message">Mengalihkan ke dashboard dalam <span id="countdown">3</span> detik...</div>
+    </div>
+
     <!-- Main Container -->
-    <div class="container">
+    <div class="container" id="mainContainer">
         <!-- Form Toggle -->
         <div class="form-toggle">
             <div class="toggle-btn active" onclick="showLogin()">
@@ -685,8 +768,8 @@
                 </div>
 
                 <button type="submit" class="submit-btn">
-                    <div class="loading"></div>
-                    <span>Login</span>
+                    <div class="loading" id="loginLoading"></div>
+                    <span id="loginBtnText">Login</span>
                 </button>
 
                 <div class="social-login">
@@ -737,8 +820,8 @@
                 </div>
 
                 <button type="submit" class="submit-btn">
-                    <div class="loading"></div>
-                    <span>Create Account</span>
+                    <div class="loading" id="signupLoading"></div>
+                    <span id="signupBtnText">Create Account</span>
                 </button>
 
                 <div class="social-login">
@@ -806,10 +889,11 @@
             window.onAuthStateChanged(window.firebaseAuth, (user) => {
                 if (user) {
                     currentUser = user;
+                    console.log('User logged in:', user.email);
                     handleUserLogin(user);
                 } else {
                     currentUser = null;
-                    handleUserLogout();
+                    console.log('No user logged in');
                 }
             });
 
@@ -817,9 +901,9 @@
             initializeUserStats();
         }
 
-        // Handle user login
+        // Handle user login success
         function handleUserLogin(user) {
-            console.log('User logged in:', user.email);
+            console.log('Processing login for:', user.email);
             
             // Update user data in database
             const userRef = window.firebaseRef(window.firebaseDatabase, `users/${user.uid}`);
@@ -833,8 +917,37 @@
             // Set up presence system
             setupUserPresence(user.uid);
             
+            // Show success screen and redirect
+            showSuccessAndRedirect(user);
+        }
+
+        // Show success screen and redirect to dashboard
+        function showSuccessAndRedirect(user) {
+            const userName = user.displayName || user.email.split('@')[0];
+            
+            // Hide loading first
+            hideLoading('login');
+            hideLoading('signup');
+            
             // Show success message
-            showMessage('loginMessage', `Welcome back, ${user.displayName || user.email}!`, 'success');
+            document.getElementById('successMessage').textContent = `Selamat datang, ${userName}!`;
+            document.getElementById('successScreen').classList.add('show');
+            document.getElementById('mainContainer').style.display = 'none';
+            
+            // Countdown and redirect
+            let countdown = 3;
+            const countdownEl = document.getElementById('countdown');
+            
+            const timer = setInterval(() => {
+                countdown--;
+                countdownEl.textContent = countdown;
+                
+                if (countdown <= 0) {
+                    clearInterval(timer);
+                    // Redirect to main.html
+                    window.location.href = 'main.html';
+                }
+            }, 1000);
         }
 
         // Handle user logout
@@ -981,19 +1094,24 @@
         }
 
         // Loading Animation
-        function showLoading(form, show) {
-            const loading = form.querySelector('.loading');
-            const submitBtn = form.querySelector('.submit-btn span');
+        function showLoading(form) {
+            const loading = document.getElementById(form + 'Loading');
+            const btnText = document.getElementById(form + 'BtnText');
+            const submitBtn = document.getElementById(form + 'Form').querySelector('.submit-btn');
             
-            if (show) {
-                loading.style.display = 'inline-block';
-                submitBtn.textContent = 'Processing...';
-                form.querySelector('.submit-btn').disabled = true;
-            } else {
-                loading.style.display = 'none';
-                submitBtn.textContent = form.id === 'loginForm' ? 'Login' : 'Create Account';
-                form.querySelector('.submit-btn').disabled = false;
-            }
+            loading.classList.add('show');
+            btnText.textContent = 'Processing...';
+            submitBtn.disabled = true;
+        }
+
+        function hideLoading(form) {
+            const loading = document.getElementById(form + 'Loading');
+            const btnText = document.getElementById(form + 'BtnText');
+            const submitBtn = document.getElementById(form + 'Form').querySelector('.submit-btn');
+            
+            loading.classList.remove('show');
+            btnText.textContent = form === 'login' ? 'Login' : 'Create Account';
+            submitBtn.disabled = false;
         }
 
         // Form Validation
@@ -1010,7 +1128,7 @@
         document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            const email = document.getElementById('loginEmail').value;
+            const email = document.getElementById('loginEmail').value.trim();
             const password = document.getElementById('loginPassword').value;
             
             // Validation
@@ -1025,17 +1143,20 @@
             }
             
             // Show loading
-            showLoading(this, true);
+            showLoading('login');
             
             try {
+                console.log('Attempting login with:', email);
                 const userCredential = await window.signInWithEmailAndPassword(window.firebaseAuth, email, password);
-                showLoading(this, false);
-                showMessage('loginMessage', 'Login successful! Welcome back!', 'success');
+                console.log('Login successful:', userCredential.user);
+                
+                // Don't hide loading here, let handleUserLogin manage the UI
+                showMessage('loginMessage', 'Login successful!', 'success');
                 
                 // Clear form
                 this.reset();
             } catch (error) {
-                showLoading(this, false);
+                hideLoading('login');
                 console.error('Login error:', error);
                 
                 let errorMessage = 'Login failed. Please try again.';
@@ -1047,6 +1168,8 @@
                     errorMessage = 'Invalid email address format.';
                 } else if (error.code === 'auth/too-many-requests') {
                     errorMessage = 'Too many failed attempts. Please try again later.';
+                } else if (error.code === 'auth/invalid-credential') {
+                    errorMessage = 'Invalid email or password. Please check your credentials.';
                 }
                 
                 showMessage('loginMessage', errorMessage, 'error');
@@ -1057,8 +1180,8 @@
         document.getElementById('signupForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            const name = document.getElementById('signupName').value;
-            const email = document.getElementById('signupEmail').value;
+            const name = document.getElementById('signupName').value.trim();
+            const email = document.getElementById('signupEmail').value.trim();
             const password = document.getElementById('signupPassword').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
             
@@ -1084,11 +1207,13 @@
             }
             
             // Show loading
-            showLoading(this, true);
+            showLoading('signup');
             
             try {
+                console.log('Attempting signup with:', email);
                 const userCredential = await window.createUserWithEmailAndPassword(window.firebaseAuth, email, password);
                 const user = userCredential.user;
+                console.log('Signup successful:', user);
                 
                 // Save additional user data
                 const userRef = window.firebaseRef(window.firebaseDatabase, `users/${user.uid}`);
@@ -1099,18 +1224,13 @@
                     isOnline: true
                 });
                 
-                showLoading(this, false);
-                showMessage('signupMessage', 'Account created successfully! Welcome!', 'success');
+                // Don't hide loading here, let handleUserLogin manage the UI
+                showMessage('signupMessage', 'Account created successfully!', 'success');
                 
                 // Clear form
                 this.reset();
-                
-                // Auto switch to login after success
-                setTimeout(() => {
-                    showLogin();
-                }, 2000);
             } catch (error) {
-                showLoading(this, false);
+                hideLoading('signup');
                 console.error('Signup error:', error);
                 
                 let errorMessage = 'Account creation failed. Please try again.';
@@ -1160,8 +1280,10 @@
                         throw new Error('Unsupported provider');
                 }
                 
+                console.log(`Attempting ${provider} login`);
                 const result = await window.signInWithPopup(window.firebaseAuth, authProvider);
                 const user = result.user;
+                console.log(`${provider} login successful:`, user);
                 
                 // Save user data if it's a new user
                 const userRef = window.firebaseRef(window.firebaseDatabase, `users/${user.uid}`);
@@ -1250,4 +1372,3 @@
     </script>
 </body>
 </html>
-
