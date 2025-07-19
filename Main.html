@@ -1,0 +1,1744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PremiumBank - Digital Banking Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getDatabase, ref, set, get, onValue, serverTimestamp, push } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBvOkBwGyqsaIt5dRyrSXmVBjVdKymyunI",
+            authDomain: "premium-login-form.firebaseapp.com",
+            databaseURL: "https://premium-login-form-default-rtdb.firebaseio.com",
+            projectId: "premium-login-form",
+            storageBucket: "premium-login-form.appspot.com",
+            messagingSenderId: "123456789012",
+            appId: "1:123456789012:web:0123456789abcdef"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const database = getDatabase(app);
+
+        // Make Firebase available globally
+        window.firebaseAuth = auth;
+        window.firebaseDatabase = database;
+        window.firebaseRef = ref;
+        window.firebaseSet = set;
+        window.firebaseGet = get;
+        window.firebaseOnValue = onValue;
+        window.firebaseServerTimestamp = serverTimestamp;
+        window.firebasePush = push;
+        window.onAuthStateChanged = onAuthStateChanged;
+        window.signOut = signOut;
+    </script>
+
+    <style>
+        :root {
+            /* Light Theme Colors */
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-color: #2ecc71;
+            --accent-color: #e67e22;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+            --info-color: #3498db;
+            
+            --bg-primary: #f8fafc;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #f1f5f9;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --text-muted: #94a3b8;
+            --border-color: #e2e8f0;
+            --shadow-light: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --shadow-medium: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-heavy: 0 10px 25px rgba(0, 0, 0, 0.15);
+            
+            /* Glassmorphism */
+            --glass-bg: rgba(255, 255, 255, 0.25);
+            --glass-border: rgba(255, 255, 255, 0.18);
+            --glass-backdrop: blur(20px);
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --text-muted: #64748b;
+            --border-color: #334155;
+            --glass-bg: rgba(30, 41, 59, 0.25);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Loading Screen */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--primary-gradient);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+
+        .loading-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .loading-logo {
+            font-size: 3rem;
+            color: white;
+            margin-bottom: 2rem;
+            animation: pulse 2s infinite;
+        }
+
+        .loading-text {
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 500;
+            margin-bottom: 2rem;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Login Screen */
+        .login-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--primary-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9998;
+            transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .login-screen.hidden {
+            transform: translateY(-100%);
+        }
+
+        .login-container {
+            background: var(--glass-bg);
+            backdrop-filter: var(--glass-backdrop);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: var(--shadow-heavy);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .login-title {
+            color: white;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .login-subtitle {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 2rem;
+        }
+
+        .login-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .login-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Main Dashboard */
+        .dashboard {
+            display: none;
+            min-height: 100vh;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .dashboard.active {
+            display: block;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Header */
+        .header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--shadow-light);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .user-greeting {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .theme-toggle, .notification-btn, .logout-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .theme-toggle:hover, .notification-btn:hover, .logout-btn:hover {
+            background: var(--primary-gradient);
+            color: white;
+            transform: scale(1.1);
+        }
+
+        /* Main Content */
+        .main-content {
+            display: flex;
+            min-height: calc(100vh - 80px);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            padding: 2rem 0;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar.collapsed {
+            transform: translateX(-100%);
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 2rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-right: 3px solid transparent;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border-right-color: var(--secondary-color);
+        }
+
+        .nav-link i {
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Content Area */
+        .content-area {
+            flex: 1;
+            padding: 2rem;
+            background: var(--bg-primary);
+        }
+
+        /* Dashboard Cards */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: var(--shadow-medium);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-heavy);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: between;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            margin-left: auto;
+        }
+
+        /* Balance Card */
+        .balance-card {
+            background: var(--primary-gradient);
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .balance-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .balance-amount {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+
+        .balance-label {
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+
+        .balance-toggle {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .balance-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .quick-action {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+
+        .quick-action:hover {
+            background: var(--primary-gradient);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .quick-action i {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        /* Transaction List */
+        .transaction-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .transaction-item:last-child {
+            border-bottom: none;
+        }
+
+        .transaction-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: white;
+        }
+
+        .transaction-icon.income {
+            background: var(--secondary-color);
+        }
+
+        .transaction-icon.expense {
+            background: var(--danger-color);
+        }
+
+        .transaction-details {
+            flex: 1;
+        }
+
+        .transaction-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .transaction-date {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .transaction-amount {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .transaction-amount.income {
+            color: var(--secondary-color);
+        }
+
+        .transaction-amount.expense {
+            color: var(--danger-color);
+        }
+
+        /* Settings Panel */
+        .settings-panel {
+            display: none;
+        }
+
+        .settings-panel.active {
+            display: block;
+        }
+
+        .settings-section {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-medium);
+            border: 1px solid var(--border-color);
+        }
+
+        .settings-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .settings-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .settings-item:last-child {
+            border-bottom: none;
+        }
+
+        .settings-label {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .settings-value {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .settings-action {
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .settings-action:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .settings-action.danger {
+            background: var(--danger-color);
+        }
+
+        /* Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .modal.active .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .modal-close:hover {
+            color: var(--text-primary);
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.1);
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: var(--primary-gradient);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-primary);
+        }
+
+        .btn-danger {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header {
+                padding: 1rem;
+            }
+
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 100vh;
+                z-index: 200;
+                transform: translateX(-100%);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .content-area {
+                padding: 1rem;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .quick-actions {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .balance-amount {
+                font-size: 2rem;
+            }
+        }
+
+        /* Animations */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(180deg); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .slide-in-right {
+            animation: slideInRight 0.5s ease-out;
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+
+        /* Notification Badge */
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--danger-color);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        /* Status Indicators */
+        .status-online {
+            color: var(--secondary-color);
+        }
+
+        .status-offline {
+            color: var(--text-muted);
+        }
+
+        .status-pending {
+            color: var(--warning-color);
+        }
+
+        /* Loading States */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 50%;
+            border-top-color: var(--secondary-color);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        /* Success/Error Messages */
+        .message {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+
+        .message.success {
+            background: rgba(46, 204, 113, 0.1);
+            color: var(--secondary-color);
+            border: 1px solid rgba(46, 204, 113, 0.2);
+        }
+
+        .message.error {
+            background: rgba(231, 76, 60, 0.1);
+            color: var(--danger-color);
+            border: 1px solid rgba(231, 76, 60, 0.2);
+        }
+
+        .message.warning {
+            background: rgba(243, 156, 18, 0.1);
+            color: var(--warning-color);
+            border: 1px solid rgba(243, 156, 18, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-logo">
+            <i class="fas fa-university"></i>
+        </div>
+        <div class="loading-text">PremiumBank</div>
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Login Screen -->
+    <div class="login-screen" id="loginScreen">
+        <div class="login-container">
+            <div class="login-title">Welcome to PremiumBank</div>
+            <div class="login-subtitle">Please login to access your dashboard</div>
+            <a href="premium-login-form-firebase.html" class="login-btn">
+                <i class="fas fa-sign-in-alt"></i> Login / Sign Up
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Dashboard -->
+    <div class="dashboard" id="dashboard">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <div class="logo">
+                    <i class="fas fa-university"></i> PremiumBank
+                </div>
+                <div class="user-greeting" id="userGreeting">
+                    Welcome back, User!
+                </div>
+            </div>
+            <div class="header-right">
+                <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Theme">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button class="notification-btn" onclick="showNotifications()" title="Notifications">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge" id="notificationBadge">3</span>
+                </button>
+                <button class="logout-btn" onclick="logout()" title="Logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Sidebar -->
+            <nav class="sidebar" id="sidebar">
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="#" class="nav-link active" onclick="showSection('dashboard')">
+                            <i class="fas fa-home"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" onclick="showSection('transfer')">
+                            <i class="fas fa-exchange-alt"></i>
+                            <span>Transfer</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" onclick="showSection('payments')">
+                            <i class="fas fa-credit-card"></i>
+                            <span>Payments</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" onclick="showSection('transactions')">
+                            <i class="fas fa-list"></i>
+                            <span>Transactions</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" onclick="showSection('investments')">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Investments</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" onclick="showSection('cards')">
+                            <i class="fas fa-credit-card"></i>
+                            <span>My Cards</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" onclick="showSection('settings')">
+                            <i class="fas fa-cog"></i>
+                            <span>Settings</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" onclick="showSection('support')">
+                            <i class="fas fa-headset"></i>
+                            <span>Support</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <!-- Content Area -->
+            <main class="content-area">
+                <!-- Dashboard Section -->
+                <div id="dashboardSection" class="content-section active">
+                    <!-- Dashboard Grid -->
+                    <div class="dashboard-grid">
+                        <!-- Balance Card -->
+                        <div class="card balance-card">
+                            <button class="balance-toggle" onclick="toggleBalance()" title="Toggle Balance Visibility">
+                                <i class="fas fa-eye" id="balanceToggleIcon"></i>
+                            </button>
+                            <div class="balance-amount" id="balanceAmount">Rp 12,500,000</div>
+                            <div class="balance-label">Total Balance</div>
+                        </div>
+
+                        <!-- Quick Stats -->
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="card-title">This Month</div>
+                                <div class="card-icon" style="background: var(--secondary-color);">
+                                    <i class="fas fa-arrow-up"></i>
+                                </div>
+                            </div>
+                            <div class="balance-amount" style="color: var(--secondary-color); font-size: 1.8rem;">
+                                +Rp 2,350,000
+                            </div>
+                            <div class="balance-label" style="color: var(--text-secondary);">Income</div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="card-title">This Month</div>
+                                <div class="card-icon" style="background: var(--danger-color);">
+                                    <i class="fas fa-arrow-down"></i>
+                                </div>
+                            </div>
+                            <div class="balance-amount" style="color: var(--danger-color); font-size: 1.8rem;">
+                                -Rp 1,850,000
+                            </div>
+                            <div class="balance-label" style="color: var(--text-secondary);">Expenses</div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="quick-actions">
+                        <a href="#" class="quick-action" onclick="showSection('transfer')">
+                            <i class="fas fa-paper-plane"></i>
+                            <div>Transfer</div>
+                        </a>
+                        <a href="#" class="quick-action" onclick="showSection('payments')">
+                            <i class="fas fa-mobile-alt"></i>
+                            <div>Top Up</div>
+                        </a>
+                        <a href="#" class="quick-action" onclick="showQRScanner()">
+                            <i class="fas fa-qrcode"></i>
+                            <div>QR Pay</div>
+                        </a>
+                        <a href="#" class="quick-action" onclick="showSection('payments')">
+                            <i class="fas fa-file-invoice"></i>
+                            <div>Bills</div>
+                        </a>
+                        <a href="#" class="quick-action" onclick="showSection('investments')">
+                            <i class="fas fa-chart-pie"></i>
+                            <div>Invest</div>
+                        </a>
+                        <a href="#" class="quick-action" onclick="showSection('cards')">
+                            <i class="fas fa-credit-card"></i>
+                            <div>Cards</div>
+                        </a>
+                    </div>
+
+                    <!-- Recent Transactions -->
+                    <div class="card" style="margin-top: 2rem;">
+                        <div class="card-header">
+                            <div class="card-title">Recent Transactions</div>
+                            <a href="#" onclick="showSection('transactions')" style="color: var(--secondary-color); text-decoration: none; font-weight: 500;">View All</a>
+                        </div>
+                        <div id="recentTransactions">
+                            <!-- Transactions will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings Section -->
+                <div id="settingsSection" class="content-section settings-panel">
+                    <!-- Account Settings -->
+                    <div class="settings-section">
+                        <div class="settings-title">
+                            <i class="fas fa-user"></i>
+                            Account Information
+                        </div>
+                        <div class="settings-item">
+                            <div>
+                                <div class="settings-label">Full Name</div>
+                                <div class="settings-value" id="userFullName">John Doe</div>
+                            </div>
+                            <button class="settings-action" onclick="editProfile()">Edit</button>
+                        </div>
+                        <div class="settings-item">
+                            <div>
+                                <div class="settings-label">Email Address</div>
+                                <div class="settings-value" id="userEmail">john.doe@example.com</div>
+                            </div>
+                            <button class="settings-action" onclick="editEmail()">Change</button>
+                        </div>
+                        <div class="settings-item">
+                            <div>
+                                <div class="settings-label">Phone Number</div>
+                                <div class="settings-value" id="userPhone">+62 812-3456-7890</div>
+                            </div>
+                            <button class="settings-action" onclick="editPhone()">Change</button>
+                        </div>
+                    </div>
+
+                    <!-- Security Settings -->
+                    <div class="settings-section">
+                        <div class="settings-title">
+                            <i class="fas fa-shield-alt"></i>
+                            Security & Privacy
+                        </div>
+                        <div class="settings-item">
+                            <div>
+                                <div class="settings-label">Transaction PIN</div>
+                                <div class="settings-value">Last changed 30 days ago</div>
+                            </div>
+                            <button class="settings-action" onclick="changePIN()">Change PIN</button>
+                        </div>
+                        <div class="settings-item">
+                            <div>
+                                <div class="settings-label">Password</div>
+                                <div class="settings-value">Last changed 60 days ago</div>
+                            </div>
+                            <button class="settings-action" onclick="changePassword()">Change</button>
+                        </div>
+                        <div class="settings-item">
+                            <div>
+                                <div class="settings-label">Two-Factor Authentication</div>
+                                <div class="settings-value status-online">Enabled</div>
+                            </div>
+                            <button class="settings-action" onclick="toggle2FA()">Manage</button>
+                        </div>
+                        <div class="settings-item">
+                            <div>
+                                <div class="settings-label">Login Devices</div>
+                                <div class="settings-value">3 active devices</div>
+                            </div>
+                            <button class="settings-action" onclick="manageDevices()">Manage</button>
+                        </div>
+                    </div>
+
+                    <!-- Linked Accounts -->
+                    <div class="settings-section">
+                        <div class="settings-title">
+                            <i class="fas fa-link"></i>
+                            Linked Accounts
+                        </div>
+                        <div class="settings-item">
+                            <div>
+                                <div class="settings-label">Bank BCA</div>
+                                <div class="settings-value">****1234 - Active</div>
+                            </div>
+                            <button class="settings-action danger" onclick="unlinkAccount('bca')">Remove</button>
+                        </div>
+                        <div class="settings-item">
+                            <div>
+                                <div class="settings-label">GoPay</div>
+                                <div class="settings-value">Connected</div>
+                            </div>
+                            <button class="settings-action danger" onclick="unlinkAccount('gopay')">Remove</button>
+                        </div>
+                        <div class="settings-item">
+                            <div>
+                                <div class="settings-label">Add New Account</div>
+                                <div class="settings-value">Link external accounts</div>
+                            </div>
+                            <button class="settings-action" onclick="linkNewAccount()">Add Account</button>
+                        </div>
+                    </div>
+
+                    <!-- Preferences -->
+                    <div class="settings-section">
+                        <div class="settings-title">
+                            <i class="fas fa-sliders-h"></i>
+                            Preferences
+                        </div>
+                        <div class="settings-item">
+                            <div>
+                                <div class="settings-label">Notifications</div>
+                                <div class="settings-value">Email & Push enabled</div>
+                            </div>
+                            <button class="settings-action" onclick="manageNotifications()">Manage</button>
+                        </div>
+                        <div class="settings-item">
+                            <div>
+                                <div class="settings-label">Language</div>
+                                <div class="settings-value">English (US)</div>
+                            </div>
+                            <button class="settings-action" onclick="changeLanguage()">Change</button>
+                        </div>
+                        <div class="settings-item">
+                            <div>
+                                <div class="settings-label">Currency</div>
+                                <div class="settings-value">Indonesian Rupiah (IDR)</div>
+                            </div>
+                            <button class="settings-action" onclick="changeCurrency()">Change</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Other sections will be added here -->
+                <div id="transferSection" class="content-section" style="display: none;">
+                    <div class="card">
+                        <div class="card-title">Transfer Money</div>
+                        <p>Transfer feature coming soon...</p>
+                    </div>
+                </div>
+
+                <div id="paymentsSection" class="content-section" style="display: none;">
+                    <div class="card">
+                        <div class="card-title">Payments & Bills</div>
+                        <p>Payment feature coming soon...</p>
+                    </div>
+                </div>
+
+                <div id="transactionsSection" class="content-section" style="display: none;">
+                    <div class="card">
+                        <div class="card-title">Transaction History</div>
+                        <p>Transaction history coming soon...</p>
+                    </div>
+                </div>
+
+                <div id="investmentsSection" class="content-section" style="display: none;">
+                    <div class="card">
+                        <div class="card-title">Investment Portfolio</div>
+                        <p>Investment feature coming soon...</p>
+                    </div>
+                </div>
+
+                <div id="cardsSection" class="content-section" style="display: none;">
+                    <div class="card">
+                        <div class="card-title">My Cards</div>
+                        <p>Card management coming soon...</p>
+                    </div>
+                </div>
+
+                <div id="supportSection" class="content-section" style="display: none;">
+                    <div class="card">
+                        <div class="card-title">Customer Support</div>
+                        <p>Support feature coming soon...</p>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Modal for various actions -->
+    <div class="modal" id="actionModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" id="modalTitle">Action</div>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div id="modalBody">
+                <!-- Modal content will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentUser = null;
+        let balanceVisible = true;
+        let isDarkTheme = false;
+
+        // Initialize app
+        window.addEventListener('load', function() {
+            setTimeout(initializeApp, 2000); // Show loading for 2 seconds
+        });
+
+        function initializeApp() {
+            // Hide loading screen
+            document.getElementById('loadingScreen').classList.add('hidden');
+            
+            // Check if Firebase is loaded
+            if (typeof window.firebaseAuth === 'undefined') {
+                console.log('Firebase still loading...');
+                setTimeout(initializeApp, 500);
+                return;
+            }
+
+            // Check authentication state
+            window.onAuthStateChanged(window.firebaseAuth, (user) => {
+                if (user) {
+                    currentUser = user;
+                    showDashboard();
+                    loadUserData();
+                } else {
+                    // For demo purposes, check if we should simulate login
+                    const urlParams = new URLSearchParams(window.location.search);
+                    if (urlParams.get('demo') === 'true') {
+                        simulateLogin();
+                    } else {
+                        showLoginScreen();
+                    }
+                }
+            });
+        }
+
+        // Simulate login for demo purposes
+        function simulateLogin() {
+            currentUser = {
+                uid: 'demo-user-123',
+                email: 'demo@premiumbank.com',
+                displayName: 'Demo User',
+                photoURL: null
+            };
+            showDashboard();
+            loadUserData();
+        }
+
+        function showLoginScreen() {
+            document.getElementById('loginScreen').classList.remove('hidden');
+            document.getElementById('dashboard').classList.remove('active');
+        }
+
+        function showDashboard() {
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('dashboard').classList.add('active');
+            loadDashboardData();
+        }
+
+        function loadUserData() {
+            if (currentUser) {
+                document.getElementById('userGreeting').textContent = 
+                    `Welcome back, ${currentUser.displayName || currentUser.email.split('@')[0]}!`;
+                document.getElementById('userFullName').textContent = 
+                    currentUser.displayName || 'Not set';
+                document.getElementById('userEmail').textContent = currentUser.email;
+            }
+        }
+
+        function loadDashboardData() {
+            // Load user's financial data from Firebase or use demo data
+            if (currentUser) {
+                if (currentUser.uid === 'demo-user-123') {
+                    // Use demo data
+                    const demoData = {
+                        balance: 12500000,
+                        monthlyIncome: 2350000,
+                        monthlyExpenses: 1850000,
+                        phone: '+62 812-3456-7890',
+                        accounts: [
+                            { type: 'BCA', number: '****1234', status: 'Active' },
+                            { type: 'GoPay', number: 'Connected', status: 'Active' }
+                        ]
+                    };
+                    
+                    // Update balance
+                    document.getElementById('balanceAmount').textContent = formatCurrency(demoData.balance);
+                    
+                    // Update phone
+                    document.getElementById('userPhone').textContent = demoData.phone;
+                    
+                    // Update monthly stats
+                    const incomeElement = document.querySelector('.balance-amount[style*="color: var(--secondary-color)"]');
+                    const expenseElement = document.querySelector('.balance-amount[style*="color: var(--danger-color)"]');
+                    if (incomeElement) incomeElement.textContent = '+' + formatCurrency(demoData.monthlyIncome);
+                    if (expenseElement) expenseElement.textContent = '-' + formatCurrency(demoData.monthlyExpenses);
+                    
+                } else {
+                    // Load from Firebase
+                    const userRef = window.firebaseRef(window.firebaseDatabase, `users/${currentUser.uid}`);
+                    window.firebaseGet(userRef).then((snapshot) => {
+                        if (snapshot.exists()) {
+                            const userData = snapshot.val();
+                            // Update balance if available
+                            if (userData.balance) {
+                                document.getElementById('balanceAmount').textContent = 
+                                    formatCurrency(userData.balance);
+                            }
+                            // Update phone if available
+                            if (userData.phone) {
+                                document.getElementById('userPhone').textContent = userData.phone;
+                            }
+                        }
+                    });
+                }
+            }
+
+            // Load recent transactions
+            loadRecentTransactions();
+        }
+
+        function loadRecentTransactions() {
+            const transactionsContainer = document.getElementById('recentTransactions');
+            
+            // Sample transactions (in real app, this would come from Firebase)
+            const sampleTransactions = [
+                {
+                    id: 1,
+                    title: 'Salary Deposit',
+                    date: '2025-01-15',
+                    amount: 5000000,
+                    type: 'income',
+                    icon: 'fas fa-building'
+                },
+                {
+                    id: 2,
+                    title: 'Grocery Shopping',
+                    date: '2025-01-14',
+                    amount: -250000,
+                    type: 'expense',
+                    icon: 'fas fa-shopping-cart'
+                },
+                {
+                    id: 3,
+                    title: 'Transfer to John',
+                    date: '2025-01-13',
+                    amount: -500000,
+                    type: 'expense',
+                    icon: 'fas fa-user'
+                },
+                {
+                    id: 4,
+                    title: 'Investment Return',
+                    date: '2025-01-12',
+                    amount: 150000,
+                    type: 'income',
+                    icon: 'fas fa-chart-line'
+                }
+            ];
+
+            transactionsContainer.innerHTML = sampleTransactions.map(transaction => `
+                <div class="transaction-item">
+                    <div class="transaction-icon ${transaction.type}">
+                        <i class="${transaction.icon}"></i>
+                    </div>
+                    <div class="transaction-details">
+                        <div class="transaction-title">${transaction.title}</div>
+                        <div class="transaction-date">${formatDate(transaction.date)}</div>
+                    </div>
+                    <div class="transaction-amount ${transaction.type}">
+                        ${transaction.amount > 0 ? '+' : ''}${formatCurrency(Math.abs(transaction.amount))}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Navigation functions
+        function showSection(sectionName) {
+            // Hide all sections
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.style.display = 'none';
+                section.classList.remove('active');
+            });
+
+            // Show selected section
+            const targetSection = document.getElementById(sectionName + 'Section');
+            if (targetSection) {
+                targetSection.style.display = 'block';
+                targetSection.classList.add('active');
+            }
+
+            // Update navigation
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            event.target.closest('.nav-link').classList.add('active');
+        }
+
+        // Balance toggle
+        function toggleBalance() {
+            const balanceAmount = document.getElementById('balanceAmount');
+            const toggleIcon = document.getElementById('balanceToggleIcon');
+            
+            if (balanceVisible) {
+                balanceAmount.textContent = '••••••••';
+                toggleIcon.className = 'fas fa-eye-slash';
+                balanceVisible = false;
+            } else {
+                // Get the actual balance from current user data
+                let actualBalance = 'Rp 12,500,000'; // Default
+                if (currentUser && currentUser.uid === 'demo-user-123') {
+                    actualBalance = formatCurrency(12500000);
+                }
+                balanceAmount.textContent = actualBalance;
+                toggleIcon.className = 'fas fa-eye';
+                balanceVisible = true;
+            }
+        }
+
+        // Theme toggle
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.querySelector('.theme-toggle i');
+            
+            isDarkTheme = !isDarkTheme;
+            
+            if (isDarkTheme) {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.className = 'fas fa-sun';
+            } else {
+                body.removeAttribute('data-theme');
+                themeIcon.className = 'fas fa-moon';
+            }
+        }
+
+        // Settings functions
+        function editProfile() {
+            showModal('Edit Profile', `
+                <form onsubmit="saveProfile(event)">
+                    <div class="form-group">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" class="form-input" value="${currentUser?.displayName || ''}" required>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                        <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                    </div>
+                </form>
+            `);
+        }
+
+        function editPhone() {
+            showModal('Change Phone Number', `
+                <form onsubmit="savePhone(event)">
+                    <div class="form-group">
+                        <label class="form-label">New Phone Number</label>
+                        <input type="tel" class="form-input" placeholder="+62 812-3456-7890" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Verification Code</label>
+                        <input type="text" class="form-input" placeholder="Enter OTP" required>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary">Verify & Save</button>
+                        <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                    </div>
+                </form>
+            `);
+        }
+
+        function changePIN() {
+            showModal('Change Transaction PIN', `
+                <form onsubmit="savePIN(event)">
+                    <div class="form-group">
+                        <label class="form-label">Current PIN</label>
+                        <input type="password" class="form-input" maxlength="6" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">New PIN</label>
+                        <input type="password" class="form-input" maxlength="6" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Confirm New PIN</label>
+                        <input type="password" class="form-input" maxlength="6" required>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary">Change PIN</button>
+                        <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                    </div>
+                </form>
+            `);
+        }
+
+        function unlinkAccount(accountType) {
+            const accountNames = {
+                'bca': 'Bank BCA',
+                'gopay': 'GoPay'
+            };
+            
+            showModal('Remove Linked Account', `
+                <div class="message warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Are you sure you want to remove ${accountNames[accountType]}? This action cannot be undone.
+                </div>
+                <div class="form-group">
+                    <button class="btn btn-danger" onclick="confirmUnlinkAccount('${accountType}')">Remove Account</button>
+                    <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                </div>
+            `);
+        }
+
+        function linkNewAccount() {
+            showModal('Link New Account', `
+                <div class="form-group">
+                    <label class="form-label">Select Account Type</label>
+                    <select class="form-input" required>
+                        <option value="">Choose account type</option>
+                        <option value="bank">Bank Account</option>
+                        <option value="ewallet">E-Wallet</option>
+                        <option value="credit">Credit Card</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Account Number</label>
+                    <input type="text" class="form-input" placeholder="Enter account number" required>
+                </div>
+                <div class="form-group">
+                    <button class="btn btn-primary" onclick="confirmLinkAccount()">Link Account</button>
+                    <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                </div>
+            `);
+        }
+
+        // Modal functions
+        function showModal(title, content) {
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalBody').innerHTML = content;
+            document.getElementById('actionModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('actionModal').classList.remove('active');
+        }
+
+        // Form submission handlers
+        function saveProfile(event) {
+            event.preventDefault();
+            // In real app, save to Firebase
+            showMessage('Profile updated successfully!', 'success');
+            closeModal();
+        }
+
+        function savePhone(event) {
+            event.preventDefault();
+            // In real app, verify OTP and save to Firebase
+            showMessage('Phone number updated successfully!', 'success');
+            closeModal();
+        }
+
+        function savePIN(event) {
+            event.preventDefault();
+            // In real app, verify current PIN and save new one
+            showMessage('Transaction PIN changed successfully!', 'success');
+            closeModal();
+        }
+
+        function confirmUnlinkAccount(accountType) {
+            // In real app, remove from Firebase
+            showMessage('Account removed successfully!', 'success');
+            closeModal();
+        }
+
+        function confirmLinkAccount() {
+            // In real app, verify and save to Firebase
+            showMessage('Account linked successfully!', 'success');
+            closeModal();
+        }
+
+        // Utility functions
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                minimumFractionDigits: 0
+            }).format(amount);
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('id-ID', {
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric'
+            });
+        }
+
+        function showMessage(message, type) {
+            // Create and show temporary message
+            const messageEl = document.createElement('div');
+            messageEl.className = `message ${type}`;
+            messageEl.textContent = message;
+            
+            document.body.appendChild(messageEl);
+            
+            setTimeout(() => {
+                messageEl.remove();
+            }, 3000);
+        }
+
+        // Other functions
+        function showNotifications() {
+            showModal('Notifications', `
+                <div class="transaction-item">
+                    <div class="transaction-icon" style="background: var(--info-color);">
+                        <i class="fas fa-info"></i>
+                    </div>
+                    <div class="transaction-details">
+                        <div class="transaction-title">New feature available</div>
+                        <div class="transaction-date">2 hours ago</div>
+                    </div>
+                </div>
+                <div class="transaction-item">
+                    <div class="transaction-icon" style="background: var(--warning-color);">
+                        <i class="fas fa-exclamation"></i>
+                    </div>
+                    <div class="transaction-details">
+                        <div class="transaction-title">Payment reminder</div>
+                        <div class="transaction-date">1 day ago</div>
+                    </div>
+                </div>
+                <div class="transaction-item">
+                    <div class="transaction-icon" style="background: var(--secondary-color);">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <div class="transaction-details">
+                        <div class="transaction-title">Transfer completed</div>
+                        <div class="transaction-date">2 days ago</div>
+                    </div>
+                </div>
+            `);
+        }
+
+        function showQRScanner() {
+            showModal('QR Code Scanner', `
+                <div style="text-align: center; padding: 2rem;">
+                    <i class="fas fa-qrcode" style="font-size: 4rem; color: var(--text-muted); margin-bottom: 1rem;"></i>
+                    <p>QR Scanner feature coming soon!</p>
+                    <button class="btn btn-primary" onclick="closeModal()">Close</button>
+                </div>
+            `);
+        }
+
+        async function logout() {
+            try {
+                await window.signOut(window.firebaseAuth);
+                showMessage('Logged out successfully!', 'success');
+                showLoginScreen();
+            } catch (error) {
+                console.error('Logout error:', error);
+                showMessage('Logout failed. Please try again.', 'error');
+            }
+        }
+
+        // Placeholder functions for other settings
+        function editEmail() { showMessage('Email change feature coming soon!', 'info'); }
+        function changePassword() { showMessage('Password change feature coming soon!', 'info'); }
+        function toggle2FA() { showMessage('2FA management feature coming soon!', 'info'); }
+        function manageDevices() { showMessage('Device management feature coming soon!', 'info'); }
+        function manageNotifications() { showMessage('Notification settings feature coming soon!', 'info'); }
+        function changeLanguage() { showMessage('Language settings feature coming soon!', 'info'); }
+        function changeCurrency() { showMessage('Currency settings feature coming soon!', 'info'); }
+
+        // Mobile responsiveness
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('actionModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>
+
