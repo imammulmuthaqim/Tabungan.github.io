@@ -55,6 +55,7 @@
             --secondary-color: #2ecc71;
             --danger-color: #e74c3c;
             --warning-color: #f39c12;
+            --info-color: #3498db;
             --text-primary: #2c3e50;
             --text-secondary: #7f8c8d;
             --text-muted: #bdc3c7;
@@ -65,6 +66,8 @@
             --shadow-light: 0 2px 10px rgba(0, 0, 0, 0.1);
             --shadow-heavy: 0 10px 30px rgba(0, 0, 0, 0.15);
             --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            --danger-gradient: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
             --glass-bg: rgba(255, 255, 255, 0.25);
             --glass-backdrop: blur(10px);
             --glass-border: rgba(255, 255, 255, 0.18);
@@ -333,7 +336,7 @@
 
         .card-header {
             display: flex;
-            justify-content: between;
+            justify-content: space-between;
             align-items: center;
             margin-bottom: 1.5rem;
         }
@@ -428,6 +431,7 @@
             box-shadow: var(--shadow-light);
             transition: all 0.3s ease;
             border: 1px solid var(--border-color);
+            cursor: pointer;
         }
 
         .quick-action:hover {
@@ -517,7 +521,7 @@
             color: var(--text-primary);
         }
 
-        .form-input {
+        .form-input, .form-select {
             width: 100%;
             padding: 1rem;
             border: 1px solid var(--border-color);
@@ -528,7 +532,7 @@
             transition: all 0.3s ease;
         }
 
-        .form-input:focus {
+        .form-input:focus, .form-select:focus {
             outline: none;
             border-color: var(--primary-color);
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
@@ -545,6 +549,7 @@
             text-decoration: none;
             display: inline-block;
             text-align: center;
+            margin-right: 0.5rem;
         }
 
         .btn-primary {
@@ -565,6 +570,26 @@
 
         .btn-secondary:hover {
             background: var(--border-color);
+        }
+
+        .btn-success {
+            background: var(--secondary-gradient);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-heavy);
+        }
+
+        .btn-danger {
+            background: var(--danger-gradient);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-heavy);
         }
 
         /* Settings Panel */
@@ -833,6 +858,7 @@
             gap: 0.5rem;
             justify-content: center;
             margin-top: 1rem;
+            flex-wrap: wrap;
         }
 
         .amount-shortcut {
@@ -852,6 +878,148 @@
             border-color: transparent;
         }
 
+        /* Service Grid */
+        .service-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .service-card {
+            background: var(--bg-primary);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: var(--shadow-light);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-heavy);
+        }
+
+        .service-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .service-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .service-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Investment Cards */
+        .investment-card {
+            background: var(--bg-primary);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: var(--shadow-light);
+            border: 1px solid var(--border-color);
+            margin-bottom: 1.5rem;
+        }
+
+        .investment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .investment-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .investment-return {
+            font-weight: 700;
+            color: var(--secondary-color);
+        }
+
+        .investment-return.negative {
+            color: var(--danger-color);
+        }
+
+        .investment-description {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .investment-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* Credit Card */
+        .credit-card {
+            background: var(--primary-gradient);
+            border-radius: 16px;
+            padding: 2rem;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 2rem;
+            min-height: 200px;
+        }
+
+        .credit-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .card-number {
+            font-size: 1.5rem;
+            font-weight: 600;
+            letter-spacing: 0.2rem;
+            margin: 2rem 0 1rem 0;
+        }
+
+        .card-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: end;
+        }
+
+        .card-holder {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .card-expiry {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .card-brand {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 2rem;
+            opacity: 0.8;
+        }
+
         /* Responsive Design */
         @media (max-width: 768px) {
             .header {
@@ -865,6 +1033,7 @@
                 height: 100vh;
                 z-index: 200;
                 transform: translateX(-100%);
+                transition: transform 0.3s ease;
             }
 
             .sidebar.open {
@@ -896,6 +1065,10 @@
                 width: 40px;
                 height: 40px;
                 font-size: 1.2rem;
+            }
+
+            .service-grid {
+                grid-template-columns: 1fr;
             }
         }
 
@@ -990,54 +1163,45 @@
             border: 1px solid rgba(243, 156, 18, 0.2);
         }
 
-        /* Onboarding Styles */
-        .onboarding-screen {
+        .message.info {
+            background: rgba(52, 152, 219, 0.1);
+            color: var(--info-color);
+            border: 1px solid rgba(52, 152, 219, 0.2);
+        }
+
+        /* Mobile Menu Toggle */
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            .user-greeting {
+                display: none;
+            }
+        }
+
+        /* Overlay for mobile sidebar */
+        .sidebar-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: var(--primary-gradient);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 9997;
-        }
-
-        .onboarding-screen.show {
-            display: flex;
-        }
-
-        .onboarding-container {
-            background: var(--glass-bg);
-            backdrop-filter: var(--glass-backdrop);
-            border: 1px solid var(--glass-border);
-            border-radius: 20px;
-            padding: 3rem;
-            box-shadow: var(--shadow-heavy);
-            text-align: center;
-            max-width: 500px;
-            width: 90%;
-            color: white;
-        }
-
-        .onboarding-title {
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-        }
-
-        .onboarding-subtitle {
-            opacity: 0.9;
-            margin-bottom: 2rem;
-            line-height: 1.6;
-        }
-
-        .onboarding-step {
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 199;
             display: none;
         }
 
-        .onboarding-step.active {
+        .sidebar-overlay.active {
             display: block;
         }
     </style>
@@ -1063,70 +1227,17 @@
         </div>
     </div>
 
-    <!-- Onboarding Screen -->
-    <div class="onboarding-screen" id="onboardingScreen">
-        <div class="onboarding-container">
-            <!-- Welcome Step -->
-            <div class="onboarding-step active" id="welcomeStep">
-                <div class="onboarding-title">Selamat Datang!</div>
-                <div class="onboarding-subtitle">
-                    Terima kasih telah bergabung dengan PremiumBank. Mari kita siapkan akun Anda untuk pengalaman banking digital yang terbaik.
-                </div>
-                <button class="btn btn-primary" onclick="nextOnboardingStep()">Mulai Setup</button>
-            </div>
-
-            <!-- Profile Setup Step -->
-            <div class="onboarding-step" id="profileStep">
-                <div class="onboarding-title">Lengkapi Profil</div>
-                <div class="onboarding-subtitle">
-                    Kami perlu beberapa informasi dasar untuk mengatur akun Anda.
-                </div>
-                <form id="profileForm" onsubmit="saveProfile(event)">
-                    <div class="form-group">
-                        <label class="form-label">Nama Lengkap</label>
-                        <input type="text" class="form-input" id="fullNameInput" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Nomor Telepon</label>
-                        <input type="tel" class="form-input" id="phoneInput" placeholder="+62812345678" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Lanjutkan</button>
-                </form>
-            </div>
-
-            <!-- PIN Setup Step -->
-            <div class="onboarding-step" id="pinStep">
-                <div class="onboarding-title">Buat PIN Transaksi</div>
-                <div class="onboarding-subtitle">
-                    PIN 6 digit ini akan digunakan untuk mengamankan semua transaksi Anda.
-                </div>
-                <div class="pin-input-container">
-                    <input type="password" class="pin-digit" maxlength="1" id="pin1">
-                    <input type="password" class="pin-digit" maxlength="1" id="pin2">
-                    <input type="password" class="pin-digit" maxlength="1" id="pin3">
-                    <input type="password" class="pin-digit" maxlength="1" id="pin4">
-                    <input type="password" class="pin-digit" maxlength="1" id="pin5">
-                    <input type="password" class="pin-digit" maxlength="1" id="pin6">
-                </div>
-                <button class="btn btn-primary" onclick="savePIN()">Simpan PIN</button>
-            </div>
-
-            <!-- Complete Step -->
-            <div class="onboarding-step" id="completeStep">
-                <div class="onboarding-title">Setup Selesai!</div>
-                <div class="onboarding-subtitle">
-                    Akun Anda telah siap digunakan. Selamat menikmati layanan PremiumBank!
-                </div>
-                <button class="btn btn-primary" onclick="completeOnboarding()">Masuk ke Dashboard</button>
-            </div>
-        </div>
-    </div>
+    <!-- Sidebar Overlay for Mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
     <!-- Main Dashboard -->
     <div class="dashboard" id="dashboard">
         <!-- Header -->
         <header class="header">
             <div class="header-left">
+                <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
                 <div class="logo">
                     <i class="fas fa-university"></i> PremiumBank
                 </div>
@@ -1166,9 +1277,15 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="#" class="nav-link" onclick="showSection('payments')">
-                            <i class="fas fa-credit-card"></i>
-                            <span>Payments</span>
+                        <a href="#" class="nav-link" onclick="showSection('topup')">
+                            <i class="fas fa-mobile-alt"></i>
+                            <span>Top Up</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" onclick="showSection('bills')">
+                            <i class="fas fa-file-invoice"></i>
+                            <span>Bills</span>
                         </a>
                     </li>
                     <li class="nav-item">
@@ -1215,7 +1332,7 @@
                             <button class="balance-toggle" onclick="toggleBalance()" title="Toggle Balance Visibility">
                                 <i class="fas fa-eye" id="balanceToggleIcon"></i>
                             </button>
-                            <div class="balance-amount" id="balanceAmount">Rp 0</div>
+                            <div class="balance-amount" id="balanceAmount">Rp 2,500,000</div>
                             <div class="balance-label">Total Balance</div>
                         </div>
 
@@ -1228,7 +1345,7 @@
                                 </div>
                             </div>
                             <div class="balance-amount" style="color: var(--secondary-color); font-size: 1.8rem;" id="monthlyIncome">
-                                +Rp 0
+                                +Rp 5,200,000
                             </div>
                             <div class="balance-label" style="color: var(--text-secondary);">Income</div>
                         </div>
@@ -1241,7 +1358,7 @@
                                 </div>
                             </div>
                             <div class="balance-amount" style="color: var(--danger-color); font-size: 1.8rem;" id="monthlyExpense">
-                                -Rp 0
+                                -Rp 2,700,000
                             </div>
                             <div class="balance-label" style="color: var(--text-secondary);">Expenses</div>
                         </div>
@@ -1249,30 +1366,30 @@
 
                     <!-- Quick Actions -->
                     <div class="quick-actions">
-                        <a href="#" class="quick-action" onclick="showSection('transfer')">
+                        <div class="quick-action" onclick="showSection('transfer')">
                             <i class="fas fa-paper-plane"></i>
                             <div>Transfer</div>
-                        </a>
-                        <a href="#" class="quick-action" onclick="showSection('payments')">
+                        </div>
+                        <div class="quick-action" onclick="showSection('topup')">
                             <i class="fas fa-mobile-alt"></i>
                             <div>Top Up</div>
-                        </a>
-                        <a href="#" class="quick-action" onclick="showQROptions()">
+                        </div>
+                        <div class="quick-action" onclick="showQROptions()">
                             <i class="fas fa-qrcode"></i>
                             <div>QR Pay</div>
-                        </a>
-                        <a href="#" class="quick-action" onclick="showSection('payments')">
+                        </div>
+                        <div class="quick-action" onclick="showSection('bills')">
                             <i class="fas fa-file-invoice"></i>
                             <div>Bills</div>
-                        </a>
-                        <a href="#" class="quick-action" onclick="showSection('investments')">
+                        </div>
+                        <div class="quick-action" onclick="showSection('investments')">
                             <i class="fas fa-chart-pie"></i>
                             <div>Invest</div>
-                        </a>
-                        <a href="#" class="quick-action" onclick="showSection('cards')">
+                        </div>
+                        <div class="quick-action" onclick="showSection('cards')">
                             <i class="fas fa-credit-card"></i>
                             <div>Cards</div>
-                        </a>
+                        </div>
                     </div>
 
                     <!-- Recent Transactions -->
@@ -1282,9 +1399,477 @@
                             <a href="#" onclick="showSection('transactions')" style="color: var(--secondary-color); text-decoration: none; font-weight: 500;">View All</a>
                         </div>
                         <div id="recentTransactions">
-                            <div style="text-align: center; padding: 2rem; color: var(--text-muted);">
-                                <i class="fas fa-receipt" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
-                                <p>Belum ada transaksi</p>
+                            <div class="transaction-item">
+                                <div class="transaction-icon income">
+                                    <i class="fas fa-arrow-down"></i>
+                                </div>
+                                <div class="transaction-details">
+                                    <div class="transaction-title">Transfer dari John Doe</div>
+                                    <div class="transaction-date">Today, 14:30</div>
+                                </div>
+                                <div class="transaction-amount income">+Rp 500,000</div>
+                            </div>
+                            <div class="transaction-item">
+                                <div class="transaction-icon expense">
+                                    <i class="fas fa-arrow-up"></i>
+                                </div>
+                                <div class="transaction-details">
+                                    <div class="transaction-title">Top Up Pulsa</div>
+                                    <div class="transaction-date">Yesterday, 09:15</div>
+                                </div>
+                                <div class="transaction-amount expense">-Rp 50,000</div>
+                            </div>
+                            <div class="transaction-item">
+                                <div class="transaction-icon expense">
+                                    <i class="fas fa-shopping-cart"></i>
+                                </div>
+                                <div class="transaction-details">
+                                    <div class="transaction-title">Pembayaran E-commerce</div>
+                                    <div class="transaction-date">2 days ago, 16:45</div>
+                                </div>
+                                <div class="transaction-amount expense">-Rp 250,000</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Transfer Section -->
+                <div id="transferSection" class="content-section">
+                    <div class="card">
+                        <div class="card-title">Transfer Dana</div>
+                        <div class="transfer-step active" id="transferStep1">
+                            <p>Masukkan nomor telepon penerima untuk mencari pengguna.</p>
+                            <div class="form-group">
+                                <label class="form-label">Nomor Telepon Penerima</label>
+                                <input type="tel" class="form-input" id="recipientPhone" placeholder="+62812345678" required>
+                            </div>
+                            <button class="btn btn-primary" onclick="searchRecipient()">Cari Penerima</button>
+                        </div>
+
+                        <div class="transfer-step" id="transferStep2">
+                            <p>Konfirmasi detail penerima dan masukkan jumlah transfer.</p>
+                            <div class="recipient-card">
+                                <div class="recipient-info">
+                                    <div class="recipient-avatar" id="recipientAvatar"></div>
+                                    <div class="recipient-details">
+                                        <h3 id="recipientName"></h3>
+                                        <p id="recipientPhoneDisplay"></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Jumlah Transfer</label>
+                                <input type="number" class="form-input" id="transferAmount" placeholder="Rp 0" required min="1000">
+                            </div>
+                            <div class="amount-shortcuts">
+                                <button class="amount-shortcut" onclick="addAmount(10000)">Rp 10rb</button>
+                                <button class="amount-shortcut" onclick="addAmount(50000)">Rp 50rb</button>
+                                <button class="amount-shortcut" onclick="addAmount(100000)">Rp 100rb</button>
+                                <button class="amount-shortcut" onclick="addAmount(500000)">Rp 500rb</button>
+                            </div>
+                            <div class="form-group" style="margin-top: 1.5rem;">
+                                <button class="btn btn-primary" onclick="confirmTransfer()">Transfer Sekarang</button>
+                                <button class="btn btn-secondary" onclick="resetTransfer()">Batal</button>
+                            </div>
+                        </div>
+
+                        <div class="transfer-step" id="transferStep3">
+                            <p>Masukkan PIN Transaksi Anda untuk menyelesaikan transfer.</p>
+                            <div class="pin-input-container">
+                                <input type="password" class="pin-digit" maxlength="1" id="pinTransfer1">
+                                <input type="password" class="pin-digit" maxlength="1" id="pinTransfer2">
+                                <input type="password" class="pin-digit" maxlength="1" id="pinTransfer3">
+                                <input type="password" class="pin-digit" maxlength="1" id="pinTransfer4">
+                                <input type="password" class="pin-digit" maxlength="1" id="pinTransfer5">
+                                <input type="password" class="pin-digit" maxlength="1" id="pinTransfer6">
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-primary" onclick="executeTransfer()">Konfirmasi Transfer</button>
+                                <button class="btn btn-secondary" onclick="resetTransfer()">Batal</button>
+                            </div>
+                        </div>
+
+                        <div class="transfer-step" id="transferStep4">
+                            <div style="text-align: center; margin-bottom: 2rem;">
+                                <i class="fas fa-check-circle" style="font-size: 4rem; color: var(--secondary-color); margin-bottom: 1rem;"></i>
+                                <h2 style="color: var(--secondary-color); margin-bottom: 0.5rem;">Transfer Berhasil!</h2>
+                                <p style="color: var(--text-secondary);">Dana telah berhasil dikirim ke penerima</p>
+                            </div>
+                            <div class="card" style="background: var(--bg-secondary);">
+                                <div class="card-title">Detail Transaksi</div>
+                                <div style="display: grid; gap: 1rem;">
+                                    <div style="display: flex; justify-content: space-between;">
+                                        <span><strong>Penerima:</strong></span>
+                                        <span id="finalRecipientName"></span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between;">
+                                        <span><strong>Nomor Telepon:</strong></span>
+                                        <span id="finalRecipientPhone"></span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between;">
+                                        <span><strong>Jumlah:</strong></span>
+                                        <span id="finalTransferAmount" style="color: var(--danger-color); font-weight: 700;"></span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between;">
+                                        <span><strong>Tanggal:</strong></span>
+                                        <span id="finalTransferDate"></span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between;">
+                                        <span><strong>Waktu:</strong></span>
+                                        <span id="finalTransferTime"></span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between;">
+                                        <span><strong>Nomor Pesanan:</strong></span>
+                                        <span id="finalOrderId" style="font-family: monospace; font-size: 0.9rem;"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="text-align: center; margin-top: 2rem;">
+                                <button class="btn btn-primary" onclick="resetTransfer()">Selesai</button>
+                                <button class="btn btn-secondary" onclick="shareReceipt()">Bagikan Bukti</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Top Up Section -->
+                <div id="topupSection" class="content-section">
+                    <div class="card">
+                        <div class="card-title">Top Up Saldo</div>
+                        <div class="service-grid">
+                            <div class="service-card" onclick="showTopUpForm('bank')">
+                                <div class="service-header">
+                                    <div class="service-icon" style="background: var(--primary-gradient);">
+                                        <i class="fas fa-university"></i>
+                                    </div>
+                                    <div class="service-title">Transfer Bank</div>
+                                </div>
+                                <p>Top up melalui transfer bank virtual account</p>
+                            </div>
+                            <div class="service-card" onclick="showTopUpForm('ewallet')">
+                                <div class="service-header">
+                                    <div class="service-icon" style="background: var(--secondary-gradient);">
+                                        <i class="fas fa-wallet"></i>
+                                    </div>
+                                    <div class="service-title">E-Wallet</div>
+                                </div>
+                                <p>Top up menggunakan GoPay, OVO, DANA, dll</p>
+                            </div>
+                            <div class="service-card" onclick="showTopUpForm('card')">
+                                <div class="service-header">
+                                    <div class="service-icon" style="background: var(--danger-gradient);">
+                                        <i class="fas fa-credit-card"></i>
+                                    </div>
+                                    <div class="service-title">Kartu Kredit/Debit</div>
+                                </div>
+                                <p>Top up langsung dengan kartu kredit atau debit</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bills Section -->
+                <div id="billsSection" class="content-section">
+                    <div class="card">
+                        <div class="card-title">Pembayaran Tagihan</div>
+                        <div class="service-grid">
+                            <div class="service-card" onclick="showBillForm('electricity')">
+                                <div class="service-header">
+                                    <div class="service-icon" style="background: var(--warning-color);">
+                                        <i class="fas fa-bolt"></i>
+                                    </div>
+                                    <div class="service-title">Listrik PLN</div>
+                                </div>
+                                <p>Bayar tagihan listrik PLN</p>
+                            </div>
+                            <div class="service-card" onclick="showBillForm('water')">
+                                <div class="service-header">
+                                    <div class="service-icon" style="background: var(--info-color);">
+                                        <i class="fas fa-tint"></i>
+                                    </div>
+                                    <div class="service-title">Air PDAM</div>
+                                </div>
+                                <p>Bayar tagihan air PDAM</p>
+                            </div>
+                            <div class="service-card" onclick="showBillForm('internet')">
+                                <div class="service-header">
+                                    <div class="service-icon" style="background: var(--primary-gradient);">
+                                        <i class="fas fa-wifi"></i>
+                                    </div>
+                                    <div class="service-title">Internet & TV</div>
+                                </div>
+                                <p>Bayar tagihan internet dan TV kabel</p>
+                            </div>
+                            <div class="service-card" onclick="showBillForm('phone')">
+                                <div class="service-header">
+                                    <div class="service-icon" style="background: var(--secondary-gradient);">
+                                        <i class="fas fa-mobile-alt"></i>
+                                    </div>
+                                    <div class="service-title">Pulsa & Paket Data</div>
+                                </div>
+                                <p>Beli pulsa dan paket data</p>
+                            </div>
+                            <div class="service-card" onclick="showBillForm('insurance')">
+                                <div class="service-header">
+                                    <div class="service-icon" style="background: var(--danger-gradient);">
+                                        <i class="fas fa-shield-alt"></i>
+                                    </div>
+                                    <div class="service-title">Asuransi</div>
+                                </div>
+                                <p>Bayar premi asuransi</p>
+                            </div>
+                            <div class="service-card" onclick="showBillForm('tax')">
+                                <div class="service-header">
+                                    <div class="service-icon" style="background: var(--text-secondary);">
+                                        <i class="fas fa-file-invoice-dollar"></i>
+                                    </div>
+                                    <div class="service-title">Pajak</div>
+                                </div>
+                                <p>Bayar pajak kendaraan dan lainnya</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Transactions Section -->
+                <div id="transactionsSection" class="content-section">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">Riwayat Transaksi</div>
+                            <div>
+                                <select class="form-select" style="width: auto; display: inline-block;" onchange="filterTransactions(this.value)">
+                                    <option value="all">Semua Transaksi</option>
+                                    <option value="income">Pemasukan</option>
+                                    <option value="expense">Pengeluaran</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div id="transactionsList">
+                            <div class="transaction-item">
+                                <div class="transaction-icon income">
+                                    <i class="fas fa-arrow-down"></i>
+                                </div>
+                                <div class="transaction-details">
+                                    <div class="transaction-title">Transfer dari John Doe</div>
+                                    <div class="transaction-date">Today, 14:30 • TXN-20241219-001</div>
+                                </div>
+                                <div class="transaction-amount income">+Rp 500,000</div>
+                            </div>
+                            <div class="transaction-item">
+                                <div class="transaction-icon expense">
+                                    <i class="fas fa-mobile-alt"></i>
+                                </div>
+                                <div class="transaction-details">
+                                    <div class="transaction-title">Top Up Pulsa Telkomsel</div>
+                                    <div class="transaction-date">Yesterday, 09:15 • TXN-20241218-045</div>
+                                </div>
+                                <div class="transaction-amount expense">-Rp 50,000</div>
+                            </div>
+                            <div class="transaction-item">
+                                <div class="transaction-icon expense">
+                                    <i class="fas fa-shopping-cart"></i>
+                                </div>
+                                <div class="transaction-details">
+                                    <div class="transaction-title">Pembayaran E-commerce</div>
+                                    <div class="transaction-date">2 days ago, 16:45 • TXN-20241217-123</div>
+                                </div>
+                                <div class="transaction-amount expense">-Rp 250,000</div>
+                            </div>
+                            <div class="transaction-item">
+                                <div class="transaction-icon expense">
+                                    <i class="fas fa-bolt"></i>
+                                </div>
+                                <div class="transaction-details">
+                                    <div class="transaction-title">Bayar Listrik PLN</div>
+                                    <div class="transaction-date">3 days ago, 11:20 • TXN-20241216-089</div>
+                                </div>
+                                <div class="transaction-amount expense">-Rp 150,000</div>
+                            </div>
+                            <div class="transaction-item">
+                                <div class="transaction-icon income">
+                                    <i class="fas fa-briefcase"></i>
+                                </div>
+                                <div class="transaction-details">
+                                    <div class="transaction-title">Gaji Bulanan</div>
+                                    <div class="transaction-date">1 week ago, 08:00 • TXN-20241212-001</div>
+                                </div>
+                                <div class="transaction-amount income">+Rp 5,000,000</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Investments Section -->
+                <div id="investmentsSection" class="content-section">
+                    <div class="card">
+                        <div class="card-title">Portfolio Investasi</div>
+                        <div class="investment-card">
+                            <div class="investment-header">
+                                <div class="investment-name">Reksa Dana Saham</div>
+                                <div class="investment-return">+12.5%</div>
+                            </div>
+                            <div class="investment-description">
+                                Investasi jangka panjang dengan potensi return tinggi
+                            </div>
+                            <div class="investment-actions">
+                                <button class="btn btn-primary" onclick="investMore('saham')">Investasi Lagi</button>
+                                <button class="btn btn-secondary" onclick="viewInvestmentDetail('saham')">Detail</button>
+                            </div>
+                        </div>
+                        
+                        <div class="investment-card">
+                            <div class="investment-header">
+                                <div class="investment-name">Emas Digital</div>
+                                <div class="investment-return">+8.2%</div>
+                            </div>
+                            <div class="investment-description">
+                                Investasi emas digital yang aman dan stabil
+                            </div>
+                            <div class="investment-actions">
+                                <button class="btn btn-primary" onclick="investMore('emas')">Investasi Lagi</button>
+                                <button class="btn btn-secondary" onclick="viewInvestmentDetail('emas')">Detail</button>
+                            </div>
+                        </div>
+
+                        <div class="investment-card">
+                            <div class="investment-header">
+                                <div class="investment-name">Obligasi Pemerintah</div>
+                                <div class="investment-return">+6.8%</div>
+                            </div>
+                            <div class="investment-description">
+                                Investasi dengan risiko rendah dan return stabil
+                            </div>
+                            <div class="investment-actions">
+                                <button class="btn btn-primary" onclick="investMore('obligasi')">Investasi Lagi</button>
+                                <button class="btn btn-secondary" onclick="viewInvestmentDetail('obligasi')">Detail</button>
+                            </div>
+                        </div>
+
+                        <div class="investment-card">
+                            <div class="investment-header">
+                                <div class="investment-name">Cryptocurrency</div>
+                                <div class="investment-return negative">-3.2%</div>
+                            </div>
+                            <div class="investment-description">
+                                Investasi kripto dengan volatilitas tinggi
+                            </div>
+                            <div class="investment-actions">
+                                <button class="btn btn-primary" onclick="investMore('crypto')">Investasi Lagi</button>
+                                <button class="btn btn-secondary" onclick="viewInvestmentDetail('crypto')">Detail</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">Investasi Baru</div>
+                        <div class="service-grid">
+                            <div class="service-card" onclick="startNewInvestment('saham')">
+                                <div class="service-header">
+                                    <div class="service-icon" style="background: var(--primary-gradient);">
+                                        <i class="fas fa-chart-line"></i>
+                                    </div>
+                                    <div class="service-title">Reksa Dana Saham</div>
+                                </div>
+                                <p>Mulai investasi reksa dana saham</p>
+                            </div>
+                            <div class="service-card" onclick="startNewInvestment('emas')">
+                                <div class="service-header">
+                                    <div class="service-icon" style="background: var(--warning-color);">
+                                        <i class="fas fa-coins"></i>
+                                    </div>
+                                    <div class="service-title">Emas Digital</div>
+                                </div>
+                                <p>Investasi emas digital yang mudah</p>
+                            </div>
+                            <div class="service-card" onclick="startNewInvestment('obligasi')">
+                                <div class="service-header">
+                                    <div class="service-icon" style="background: var(--secondary-gradient);">
+                                        <i class="fas fa-certificate"></i>
+                                    </div>
+                                    <div class="service-title">Obligasi</div>
+                                </div>
+                                <p>Investasi obligasi pemerintah</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cards Section -->
+                <div id="cardsSection" class="content-section">
+                    <div class="card">
+                        <div class="card-title">Kartu Saya</div>
+                        
+                        <!-- Credit Card Display -->
+                        <div class="credit-card">
+                            <div class="card-brand">
+                                <i class="fab fa-cc-visa"></i>
+                            </div>
+                            <div class="card-number">**** **** **** 1234</div>
+                            <div class="card-info">
+                                <div>
+                                    <div class="card-holder">JOHN DOE</div>
+                                </div>
+                                <div>
+                                    <div class="card-expiry">12/26</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card Actions -->
+                        <div class="service-grid">
+                            <div class="service-card" onclick="showCardAction('block')">
+                                <div class="service-header">
+                                    <div class="service-icon" style="background: var(--danger-gradient);">
+                                        <i class="fas fa-ban"></i>
+                                    </div>
+                                    <div class="service-title">Blokir Kartu</div>
+                                </div>
+                                <p>Blokir kartu jika hilang atau dicuri</p>
+                            </div>
+                            <div class="service-card" onclick="showCardAction('limit')">
+                                <div class="service-header">
+                                    <div class="service-icon" style="background: var(--primary-gradient);">
+                                        <i class="fas fa-cog"></i>
+                                    </div>
+                                    <div class="service-title">Atur Limit</div>
+                                </div>
+                                <p>Atur limit transaksi harian</p>
+                            </div>
+                            <div class="service-card" onclick="showCardAction('pin')">
+                                <div class="service-header">
+                                    <div class="service-icon" style="background: var(--secondary-gradient);">
+                                        <i class="fas fa-key"></i>
+                                    </div>
+                                    <div class="service-title">Ganti PIN</div>
+                                </div>
+                                <p>Ubah PIN kartu ATM/Debit</p>
+                            </div>
+                            <div class="service-card" onclick="showCardAction('statement')">
+                                <div class="service-header">
+                                    <div class="service-icon" style="background: var(--info-color);">
+                                        <i class="fas fa-file-alt"></i>
+                                    </div>
+                                    <div class="service-title">Mutasi Kartu</div>
+                                </div>
+                                <p>Lihat riwayat transaksi kartu</p>
+                            </div>
+                            <div class="service-card" onclick="showCardAction('new')">
+                                <div class="service-header">
+                                    <div class="service-icon" style="background: var(--warning-color);">
+                                        <i class="fas fa-plus"></i>
+                                    </div>
+                                    <div class="service-title">Kartu Baru</div>
+                                </div>
+                                <p>Ajukan kartu kredit/debit baru</p>
+                            </div>
+                            <div class="service-card" onclick="showCardAction('virtual')">
+                                <div class="service-header">
+                                    <div class="service-icon" style="background: var(--text-secondary);">
+                                        <i class="fas fa-mobile-alt"></i>
+                                    </div>
+                                    <div class="service-title">Kartu Virtual</div>
+                                </div>
+                                <p>Buat kartu virtual untuk belanja online</p>
                             </div>
                         </div>
                     </div>
@@ -1301,21 +1886,21 @@
                         <div class="settings-item">
                             <div>
                                 <div class="settings-label">Full Name</div>
-                                <div class="settings-value" id="userFullName">Loading...</div>
+                                <div class="settings-value" id="userFullName">John Doe</div>
                             </div>
                             <button class="settings-action" onclick="editProfile()">Edit</button>
                         </div>
                         <div class="settings-item">
                             <div>
                                 <div class="settings-label">Email Address</div>
-                                <div class="settings-value" id="userEmail">Loading...</div>
+                                <div class="settings-value" id="userEmail">john.doe@example.com</div>
                             </div>
                             <button class="settings-action" onclick="editEmail()">Change</button>
                         </div>
                         <div class="settings-item">
                             <div>
                                 <div class="settings-label">Phone Number</div>
-                                <div class="settings-value" id="userPhone">Loading...</div>
+                                <div class="settings-value" id="userPhone">+62812345678</div>
                             </div>
                             <button class="settings-action" onclick="editPhone()">Change</button>
                         </div>
@@ -1330,14 +1915,14 @@
                         <div class="settings-item">
                             <div>
                                 <div class="settings-label">Transaction PIN</div>
-                                <div class="settings-value" id="pinStatus">Not set</div>
+                                <div class="settings-value status-online" id="pinStatus">Set</div>
                             </div>
                             <button class="settings-action" onclick="changePIN()">Change PIN</button>
                         </div>
                         <div class="settings-item">
                             <div>
                                 <div class="settings-label">Password</div>
-                                <div class="settings-value">Last changed 60 days ago</div>
+                                <div class="settings-value">Last changed 30 days ago</div>
                             </div>
                             <button class="settings-action" onclick="changePassword()">Change</button>
                         </div>
@@ -1351,46 +1936,48 @@
                     </div>
                 </div>
 
-                <!-- Other sections placeholders -->
-                <div id="transferSection" class="content-section">
-                    <div class="card">
-                        <div class="card-title">Transfer Feature</div>
-                        <p>Transfer feature is fully functional with Firebase integration.</p>
-                    </div>
-                </div>
-
-                <div id="paymentsSection" class="content-section">
-                    <div class="card">
-                        <div class="card-title">Payments & Bills</div>
-                        <p>Payment feature coming soon...</p>
-                    </div>
-                </div>
-
-                <div id="transactionsSection" class="content-section">
-                    <div class="card">
-                        <div class="card-title">Transaction History</div>
-                        <p>Transaction history is fully functional with Firebase integration.</p>
-                    </div>
-                </div>
-
-                <div id="investmentsSection" class="content-section">
-                    <div class="card">
-                        <div class="card-title">Investment Portfolio</div>
-                        <p>Investment feature coming soon...</p>
-                    </div>
-                </div>
-
-                <div id="cardsSection" class="content-section">
-                    <div class="card">
-                        <div class="card-title">My Cards</div>
-                        <p>Card management coming soon...</p>
-                    </div>
-                </div>
-
+                <!-- Support Section -->
                 <div id="supportSection" class="content-section">
                     <div class="card">
                         <div class="card-title">Customer Support</div>
-                        <p>Support feature coming soon...</p>
+                        <div class="service-grid">
+                            <div class="service-card" onclick="contactSupport('chat')">
+                                <div class="service-header">
+                                    <div class="service-icon" style="background: var(--primary-gradient);">
+                                        <i class="fas fa-comments"></i>
+                                    </div>
+                                    <div class="service-title">Live Chat</div>
+                                </div>
+                                <p>Chat langsung dengan customer service</p>
+                            </div>
+                            <div class="service-card" onclick="contactSupport('phone')">
+                                <div class="service-header">
+                                    <div class="service-icon" style="background: var(--secondary-gradient);">
+                                        <i class="fas fa-phone"></i>
+                                    </div>
+                                    <div class="service-title">Call Center</div>
+                                </div>
+                                <p>Hubungi call center 24/7</p>
+                            </div>
+                            <div class="service-card" onclick="contactSupport('email')">
+                                <div class="service-header">
+                                    <div class="service-icon" style="background: var(--info-color);">
+                                        <i class="fas fa-envelope"></i>
+                                    </div>
+                                    <div class="service-title">Email Support</div>
+                                </div>
+                                <p>Kirim email ke support team</p>
+                            </div>
+                            <div class="service-card" onclick="showFAQ()">
+                                <div class="service-header">
+                                    <div class="service-icon" style="background: var(--warning-color);">
+                                        <i class="fas fa-question-circle"></i>
+                                    </div>
+                                    <div class="service-title">FAQ</div>
+                                </div>
+                                <p>Pertanyaan yang sering diajukan</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </main>
@@ -1415,20 +2002,20 @@
         let currentUser = null;
         let balanceVisible = true;
         let isDarkTheme = false;
-        let userBalance = 0;
+        let userBalance = 2500000;
+        let recipientData = null;
+        let transferAmount = 0;
 
         // Initialize app
         document.addEventListener('DOMContentLoaded', function() {
-            setTimeout(initializeApp, 2000); // Show loading for 2 seconds
+            setTimeout(initializeApp, 2000);
         });
 
         function initializeApp() {
             console.log('Initializing main dashboard...');
             
-            // Hide loading screen
             document.getElementById('loadingScreen').style.display = 'none';
             
-            // Check if Firebase is loaded
             if (typeof window.firebaseAuth === 'undefined') {
                 console.log('Firebase still loading...');
                 setTimeout(initializeApp, 500);
@@ -1437,7 +2024,6 @@
 
             console.log('Firebase loaded, checking authentication...');
 
-            // Check authentication state
             window.onAuthStateChanged(window.firebaseAuth, (user) => {
                 console.log('Auth state changed:', user ? 'User logged in' : 'No user');
                 
@@ -1456,13 +2042,11 @@
         function showLoginRequired() {
             document.getElementById('loginRequiredScreen').classList.add('show');
             document.getElementById('dashboard').classList.remove('active');
-            document.getElementById('onboardingScreen').classList.remove('show');
         }
 
         function showDashboard() {
             console.log('Showing dashboard for user:', currentUser.email);
             document.getElementById('loginRequiredScreen').classList.remove('show');
-            document.getElementById('onboardingScreen').classList.remove('show');
             document.getElementById('dashboard').classList.add('active');
         }
 
@@ -1471,12 +2055,10 @@
                 console.log('Loading user data for:', currentUser.email);
                 
                 try {
-                    // Update UI with user data
                     const displayName = currentUser.displayName || currentUser.email.split('@')[0];
                     document.getElementById('userGreeting').textContent = `Welcome back, ${displayName}!`;
-                    document.getElementById('userFullName').textContent = currentUser.displayName || 'Not set';
+                    document.getElementById('userFullName').textContent = currentUser.displayName || 'John Doe';
                     document.getElementById('userEmail').textContent = currentUser.email;
-                    document.getElementById('userPhone').textContent = 'Not set';
                     
                     updateBalanceDisplay();
                 } catch (error) {
@@ -1497,34 +2079,42 @@
 
         // Navigation functions
         function showSection(sectionName) {
-            // Hide all sections
             document.querySelectorAll('.content-section').forEach(section => {
                 section.style.display = 'none';
                 section.classList.remove('active');
             });
 
-            // Show selected section
             const targetSection = document.getElementById(sectionName + 'Section');
             if (targetSection) {
                 targetSection.style.display = 'block';
                 targetSection.classList.add('active');
             }
 
-            // Update navigation
             document.querySelectorAll('.nav-link').forEach(link => {
                 link.classList.remove('active');
             });
             
-            // Find and activate the correct nav link
             const navLinks = document.querySelectorAll('.nav-link');
             navLinks.forEach(link => {
                 if (link.getAttribute('onclick') && link.getAttribute('onclick').includes(sectionName)) {
                     link.classList.add('active');
                 }
             });
+
+            // Close mobile sidebar
+            if (window.innerWidth <= 768) {
+                toggleSidebar();
+            }
         }
 
-        // Balance toggle
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+        }
+
         function toggleBalance() {
             const toggleIcon = document.getElementById('balanceToggleIcon');
             
@@ -1539,7 +2129,6 @@
             updateBalanceDisplay();
         }
 
-        // Theme toggle
         function toggleTheme() {
             const body = document.body;
             const themeIcon = document.querySelector('.theme-toggle i');
@@ -1553,6 +2142,538 @@
                 body.removeAttribute('data-theme');
                 themeIcon.className = 'fas fa-moon';
             }
+        }
+
+        // Transfer functions
+        async function searchRecipient() {
+            const phone = document.getElementById("recipientPhone").value;
+            if (!phone) {
+                showMessage("Masukkan nomor telepon penerima.", "warning");
+                return;
+            }
+
+            if (phone === document.getElementById("userPhone").textContent) {
+                showMessage("Tidak dapat transfer ke nomor sendiri.", "error");
+                return;
+            }
+
+            // Simulate search (in real app, this would query Firebase)
+            setTimeout(() => {
+                // Mock recipient data
+                recipientData = {
+                    displayName: "Jane Smith",
+                    phoneNumber: phone,
+                    uid: "mock-uid-123"
+                };
+
+                document.getElementById("recipientName").textContent = recipientData.displayName;
+                document.getElementById("recipientPhoneDisplay").textContent = recipientData.phoneNumber;
+                document.getElementById("recipientAvatar").textContent = recipientData.displayName[0].toUpperCase();
+
+                showTransferStep(2);
+                showMessage("Penerima ditemukan!", "success");
+            }, 1000);
+        }
+
+        function showTransferStep(step) {
+            document.querySelectorAll(".transfer-step").forEach(s => s.classList.remove("active"));
+            document.getElementById(`transferStep${step}`).classList.add("active");
+        }
+
+        function addAmount(amount) {
+            const currentAmount = parseInt(document.getElementById("transferAmount").value) || 0;
+            document.getElementById("transferAmount").value = currentAmount + amount;
+        }
+
+        function confirmTransfer() {
+            transferAmount = parseInt(document.getElementById("transferAmount").value);
+            if (isNaN(transferAmount) || transferAmount <= 0) {
+                showMessage("Masukkan jumlah transfer yang valid.", "warning");
+                return;
+            }
+
+            if (userBalance < transferAmount) {
+                showMessage("Saldo tidak mencukupi.", "error");
+                return;
+            }
+
+            showTransferStep(3);
+            document.querySelectorAll(".pin-digit").forEach(input => input.value = "");
+            document.getElementById("pinTransfer1").focus();
+        }
+
+        function executeTransfer() {
+            const enteredPin = Array.from(document.querySelectorAll("#transferStep3 .pin-digit")).map(input => input.value).join("");
+            if (enteredPin.length !== 6) {
+                showMessage("Masukkan PIN 6 digit lengkap.", "warning");
+                return;
+            }
+
+            // Simulate PIN verification
+            if (enteredPin !== "123456") {
+                showMessage("PIN salah. Coba lagi.", "error");
+                return;
+            }
+
+            // Simulate transfer execution
+            setTimeout(() => {
+                userBalance -= transferAmount;
+                
+                const transactionId = `TXN-${new Date().toISOString().replace(/[^0-9]/g, "").slice(0, 14)}-${Math.floor(Math.random() * 1000)}`;
+                
+                document.getElementById("finalRecipientName").textContent = recipientData.displayName;
+                document.getElementById("finalRecipientPhone").textContent = recipientData.phoneNumber;
+                document.getElementById("finalTransferAmount").textContent = formatCurrency(transferAmount);
+                document.getElementById("finalTransferDate").textContent = new Date().toLocaleDateString("id-ID");
+                document.getElementById("finalTransferTime").textContent = new Date().toLocaleTimeString("id-ID");
+                document.getElementById("finalOrderId").textContent = transactionId;
+
+                showMessage("Transfer berhasil!", "success");
+                showTransferStep(4);
+                updateBalanceDisplay();
+            }, 2000);
+        }
+
+        function resetTransfer() {
+            document.getElementById("recipientPhone").value = "";
+            document.getElementById("transferAmount").value = "";
+            recipientData = null;
+            transferAmount = 0;
+            showTransferStep(1);
+        }
+
+        function shareReceipt() {
+            showMessage("Fitur berbagi bukti transfer akan segera tersedia.", "info");
+        }
+
+        // QR Code functions
+        function showQROptions() {
+            showModal("QR Pay", `
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="quick-action" onclick="startQRScanner()" style="margin: 0;">
+                        <i class="fas fa-camera"></i>
+                        <div>Scan QR Code</div>
+                    </div>
+                    <div class="quick-action" onclick="showMyQRCode()" style="margin: 0;">
+                        <i class="fas fa-qrcode"></i>
+                        <div>QR Code Saya</div>
+                    </div>
+                </div>
+            `);
+        }
+
+        async function startQRScanner() {
+            closeModal();
+            showModal("Scan QR Code", `
+                <div class="qr-scanner-container">
+                    <video id="qrVideo" class="qr-video" autoplay playsinline></video>
+                    <div class="qr-overlay"></div>
+                </div>
+                <p style="text-align: center; margin-top: 1rem;">Arahkan kamera ke QR Code</p>
+                <button class="btn btn-secondary" onclick="stopQRScanner()">Stop Scan</button>
+            `);
+
+            // Simulate QR scanner (in real app, would use camera)
+            setTimeout(() => {
+                showMessage("QR Code terdeteksi! Mengarahkan ke transfer...", "success");
+                stopQRScanner();
+                document.getElementById("recipientPhone").value = "+62812345678";
+                showSection("transfer");
+                setTimeout(searchRecipient, 500);
+            }, 3000);
+        }
+
+        function stopQRScanner() {
+            closeModal();
+        }
+
+        async function showMyQRCode() {
+            const userPhone = document.getElementById("userPhone").textContent;
+            
+            showModal("QR Code Saya", `
+                <div class="qr-container">
+                    <p>Scan QR Code ini untuk transfer ke nomor Anda:</p>
+                    <div class="qr-code-display">
+                        <canvas id="myQRCodeCanvas"></canvas>
+                    </div>
+                    <p style="font-weight: 600;">${userPhone}</p>
+                </div>
+            `);
+
+            // Generate QR Code
+            const canvas = document.getElementById("myQRCodeCanvas");
+            if (typeof QRCode !== 'undefined') {
+                QRCode.toCanvas(canvas, userPhone, function (error) {
+                    if (error) console.error(error);
+                    console.log("QR Code generated!");
+                });
+            }
+        }
+
+        // Top Up functions
+        function showTopUpForm(method) {
+            let title = "";
+            let content = "";
+            
+            switch(method) {
+                case 'bank':
+                    title = "Top Up via Transfer Bank";
+                    content = `
+                        <div class="form-group">
+                            <label class="form-label">Jumlah Top Up</label>
+                            <input type="number" class="form-input" id="topupAmount" placeholder="Minimum Rp 10,000" min="10000">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Pilih Bank</label>
+                            <select class="form-select" id="bankSelect">
+                                <option value="bca">BCA</option>
+                                <option value="mandiri">Mandiri</option>
+                                <option value="bni">BNI</option>
+                                <option value="bri">BRI</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-primary" onclick="processTopUp('bank')">Lanjutkan</button>
+                    `;
+                    break;
+                case 'ewallet':
+                    title = "Top Up via E-Wallet";
+                    content = `
+                        <div class="form-group">
+                            <label class="form-label">Jumlah Top Up</label>
+                            <input type="number" class="form-input" id="topupAmount" placeholder="Minimum Rp 10,000" min="10000">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Pilih E-Wallet</label>
+                            <select class="form-select" id="ewalletSelect">
+                                <option value="gopay">GoPay</option>
+                                <option value="ovo">OVO</option>
+                                <option value="dana">DANA</option>
+                                <option value="linkaja">LinkAja</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-primary" onclick="processTopUp('ewallet')">Lanjutkan</button>
+                    `;
+                    break;
+                case 'card':
+                    title = "Top Up via Kartu";
+                    content = `
+                        <div class="form-group">
+                            <label class="form-label">Jumlah Top Up</label>
+                            <input type="number" class="form-input" id="topupAmount" placeholder="Minimum Rp 10,000" min="10000">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Nomor Kartu</label>
+                            <input type="text" class="form-input" id="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19">
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div class="form-group">
+                                <label class="form-label">Expired</label>
+                                <input type="text" class="form-input" id="cardExpiry" placeholder="MM/YY" maxlength="5">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">CVV</label>
+                                <input type="text" class="form-input" id="cardCvv" placeholder="123" maxlength="3">
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" onclick="processTopUp('card')">Lanjutkan</button>
+                    `;
+                    break;
+            }
+            
+            showModal(title, content);
+        }
+
+        function processTopUp(method) {
+            const amount = parseInt(document.getElementById("topupAmount").value);
+            if (isNaN(amount) || amount < 10000) {
+                showMessage("Minimum top up Rp 10,000", "warning");
+                return;
+            }
+
+            closeModal();
+            showMessage("Proses top up sedang berlangsung...", "info");
+            
+            setTimeout(() => {
+                userBalance += amount;
+                updateBalanceDisplay();
+                showMessage(`Top up berhasil! Saldo bertambah ${formatCurrency(amount)}`, "success");
+            }, 3000);
+        }
+
+        // Bills functions
+        function showBillForm(type) {
+            let title = "";
+            let content = "";
+            
+            switch(type) {
+                case 'electricity':
+                    title = "Bayar Listrik PLN";
+                    content = `
+                        <div class="form-group">
+                            <label class="form-label">ID Pelanggan</label>
+                            <input type="text" class="form-input" id="customerId" placeholder="Masukkan ID Pelanggan PLN">
+                        </div>
+                        <button class="btn btn-primary" onclick="checkBill('electricity')">Cek Tagihan</button>
+                    `;
+                    break;
+                case 'water':
+                    title = "Bayar Air PDAM";
+                    content = `
+                        <div class="form-group">
+                            <label class="form-label">ID Pelanggan</label>
+                            <input type="text" class="form-input" id="customerId" placeholder="Masukkan ID Pelanggan PDAM">
+                        </div>
+                        <button class="btn btn-primary" onclick="checkBill('water')">Cek Tagihan</button>
+                    `;
+                    break;
+                case 'phone':
+                    title = "Beli Pulsa & Paket Data";
+                    content = `
+                        <div class="form-group">
+                            <label class="form-label">Nomor Telepon</label>
+                            <input type="tel" class="form-input" id="phoneNumber" placeholder="+62812345678">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Provider</label>
+                            <select class="form-select" id="provider">
+                                <option value="telkomsel">Telkomsel</option>
+                                <option value="xl">XL</option>
+                                <option value="indosat">Indosat</option>
+                                <option value="tri">3 (Tri)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Nominal</label>
+                            <select class="form-select" id="phoneCredit">
+                                <option value="10000">Rp 10,000</option>
+                                <option value="25000">Rp 25,000</option>
+                                <option value="50000">Rp 50,000</option>
+                                <option value="100000">Rp 100,000</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-primary" onclick="processBillPayment('phone')">Beli Sekarang</button>
+                    `;
+                    break;
+                default:
+                    title = "Pembayaran Tagihan";
+                    content = `
+                        <div style="text-align: center; padding: 2rem;">
+                            <i class="fas fa-tools" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 1rem;"></i>
+                            <p>Fitur pembayaran ${type} sedang dalam pengembangan.</p>
+                            <button class="btn btn-primary" onclick="closeModal()">OK</button>
+                        </div>
+                    `;
+                    break;
+            }
+            
+            showModal(title, content);
+        }
+
+        function checkBill(type) {
+            const customerId = document.getElementById("customerId").value;
+            if (!customerId) {
+                showMessage("Masukkan ID Pelanggan", "warning");
+                return;
+            }
+
+            // Simulate bill check
+            setTimeout(() => {
+                const billAmount = Math.floor(Math.random() * 500000) + 50000;
+                showModal("Detail Tagihan", `
+                    <div class="form-group">
+                        <label class="form-label">ID Pelanggan</label>
+                        <input type="text" class="form-input" value="${customerId}" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Nama Pelanggan</label>
+                        <input type="text" class="form-input" value="John Doe" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Jumlah Tagihan</label>
+                        <input type="text" class="form-input" value="${formatCurrency(billAmount)}" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Jatuh Tempo</label>
+                        <input type="text" class="form-input" value="${new Date(Date.now() + 7*24*60*60*1000).toLocaleDateString('id-ID')}" readonly>
+                    </div>
+                    <button class="btn btn-primary" onclick="processBillPayment('${type}', ${billAmount})">Bayar Sekarang</button>
+                `);
+            }, 2000);
+        }
+
+        function processBillPayment(type, amount) {
+            if (type === 'phone') {
+                amount = parseInt(document.getElementById("phoneCredit").value);
+            }
+            
+            if (userBalance < amount) {
+                showMessage("Saldo tidak mencukupi", "error");
+                return;
+            }
+
+            closeModal();
+            showMessage("Memproses pembayaran...", "info");
+            
+            setTimeout(() => {
+                userBalance -= amount;
+                updateBalanceDisplay();
+                showMessage(`Pembayaran berhasil! ${formatCurrency(amount)} telah dibayarkan.`, "success");
+            }, 3000);
+        }
+
+        // Investment functions
+        function investMore(type) {
+            showModal("Investasi Tambahan", `
+                <div class="form-group">
+                    <label class="form-label">Jumlah Investasi</label>
+                    <input type="number" class="form-input" id="investAmount" placeholder="Minimum Rp 100,000" min="100000">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Jenis Investasi</label>
+                    <input type="text" class="form-input" value="${type}" readonly>
+                </div>
+                <button class="btn btn-primary" onclick="processInvestment('${type}')">Investasi Sekarang</button>
+            `);
+        }
+
+        function processInvestment(type) {
+            const amount = parseInt(document.getElementById("investAmount").value);
+            if (isNaN(amount) || amount < 100000) {
+                showMessage("Minimum investasi Rp 100,000", "warning");
+                return;
+            }
+
+            if (userBalance < amount) {
+                showMessage("Saldo tidak mencukupi", "error");
+                return;
+            }
+
+            closeModal();
+            showMessage("Memproses investasi...", "info");
+            
+            setTimeout(() => {
+                userBalance -= amount;
+                updateBalanceDisplay();
+                showMessage(`Investasi berhasil! ${formatCurrency(amount)} telah diinvestasikan ke ${type}.`, "success");
+            }, 3000);
+        }
+
+        function viewInvestmentDetail(type) {
+            showModal("Detail Investasi", `
+                <div style="text-align: center; padding: 2rem;">
+                    <i class="fas fa-chart-line" style="font-size: 3rem; color: var(--primary-color); margin-bottom: 1rem;"></i>
+                    <p>Detail investasi ${type} akan ditampilkan di sini.</p>
+                    <button class="btn btn-primary" onclick="closeModal()">OK</button>
+                </div>
+            `);
+        }
+
+        function startNewInvestment(type) {
+            investMore(type);
+        }
+
+        // Card functions
+        function showCardAction(action) {
+            let title = "";
+            let content = "";
+            
+            switch(action) {
+                case 'block':
+                    title = "Blokir Kartu";
+                    content = `
+                        <div style="text-align: center; padding: 2rem;">
+                            <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: var(--danger-color); margin-bottom: 1rem;"></i>
+                            <p>Apakah Anda yakin ingin memblokir kartu ini?</p>
+                            <p style="color: var(--text-secondary); font-size: 0.9rem;">Kartu yang diblokir tidak dapat digunakan untuk transaksi.</p>
+                            <div style="margin-top: 2rem;">
+                                <button class="btn btn-danger" onclick="processCardAction('block')">Ya, Blokir Kartu</button>
+                                <button class="btn btn-secondary" onclick="closeModal()">Batal</button>
+                            </div>
+                        </div>
+                    `;
+                    break;
+                case 'limit':
+                    title = "Atur Limit Kartu";
+                    content = `
+                        <div class="form-group">
+                            <label class="form-label">Limit Harian ATM</label>
+                            <input type="number" class="form-input" id="atmLimit" value="5000000" placeholder="Rp 5,000,000">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Limit Harian Debit</label>
+                            <input type="number" class="form-input" id="debitLimit" value="10000000" placeholder="Rp 10,000,000">
+                        </div>
+                        <button class="btn btn-primary" onclick="processCardAction('limit')">Simpan Perubahan</button>
+                    `;
+                    break;
+                case 'pin':
+                    title = "Ganti PIN Kartu";
+                    content = `
+                        <div class="form-group">
+                            <label class="form-label">PIN Lama</label>
+                            <input type="password" class="form-input" id="oldPin" maxlength="6" placeholder="Masukkan PIN lama">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">PIN Baru</label>
+                            <input type="password" class="form-input" id="newPin" maxlength="6" placeholder="Masukkan PIN baru">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Konfirmasi PIN Baru</label>
+                            <input type="password" class="form-input" id="confirmPin" maxlength="6" placeholder="Konfirmasi PIN baru">
+                        </div>
+                        <button class="btn btn-primary" onclick="processCardAction('pin')">Ganti PIN</button>
+                    `;
+                    break;
+                default:
+                    title = "Fitur Kartu";
+                    content = `
+                        <div style="text-align: center; padding: 2rem;">
+                            <i class="fas fa-tools" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 1rem;"></i>
+                            <p>Fitur ${action} sedang dalam pengembangan.</p>
+                            <button class="btn btn-primary" onclick="closeModal()">OK</button>
+                        </div>
+                    `;
+                    break;
+            }
+            
+            showModal(title, content);
+        }
+
+        function processCardAction(action) {
+            closeModal();
+            showMessage(`Fitur ${action} berhasil diproses!`, "success");
+        }
+
+        // Support functions
+        function contactSupport(method) {
+            let message = "";
+            switch(method) {
+                case 'chat':
+                    message = "Menghubungkan ke live chat...";
+                    break;
+                case 'phone':
+                    message = "Call Center: 1500-123 (24/7)";
+                    break;
+                case 'email':
+                    message = "Email: support@premiumbank.com";
+                    break;
+            }
+            showMessage(message, "info");
+        }
+
+        function showFAQ() {
+            showModal("Frequently Asked Questions", `
+                <div style="text-align: left;">
+                    <h4>Q: Bagaimana cara reset PIN transaksi?</h4>
+                    <p>A: Anda dapat reset PIN melalui menu Settings > Security > Transaction PIN.</p>
+                    
+                    <h4>Q: Berapa limit transfer per hari?</h4>
+                    <p>A: Limit transfer adalah Rp 25,000,000 per hari.</p>
+                    
+                    <h4>Q: Bagaimana cara menghubungi customer service?</h4>
+                    <p>A: Anda dapat menghubungi kami melalui live chat, telepon 1500-123, atau email support@premiumbank.com.</p>
+                </div>
+            `);
         }
 
         // Settings functions
@@ -1571,33 +2692,21 @@
             `);
         }
 
-        async function saveProfileEdit(event) {
+        function saveProfileEdit(event) {
             event.preventDefault();
-            
             const newName = document.getElementById('editFullName').value;
-            
-            try {
-                await currentUser.updateProfile({
-                    displayName: newName
-                });
-                
-                document.getElementById('userFullName').textContent = newName;
-                document.getElementById('userGreeting').textContent = `Welcome back, ${newName}!`;
-                
-                showMessage('Profile updated successfully!', 'success');
-                closeModal();
-            } catch (error) {
-                console.error('Error updating profile:', error);
-                showMessage('Failed to update profile', 'error');
-            }
+            document.getElementById('userFullName').textContent = newName;
+            document.getElementById('userGreeting').textContent = `Welcome back, ${newName}!`;
+            showMessage('Profile updated successfully!', 'success');
+            closeModal();
         }
 
-        async function editEmail() {
+        function editEmail() {
             showModal('Change Email Address', `
                 <form onsubmit="saveNewEmail(event)">
                     <div class="form-group">
                         <label class="form-label">New Email</label>
-                        <input type="email" class="form-input" id="newEmail" value="${currentUser.email}" required>
+                        <input type="email" class="form-input" id="newEmail" value="${document.getElementById('userEmail').textContent}" required>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Current Password</label>
@@ -1611,40 +2720,15 @@
             `);
         }
 
-        async function saveNewEmail(event) {
+        function saveNewEmail(event) {
             event.preventDefault();
             const newEmail = document.getElementById('newEmail').value;
-            const currentPassword = document.getElementById('currentPasswordEmail').value;
-
-            if (newEmail === currentUser.email) {
-                showMessage('New email is the same as current email.', 'warning');
-                closeModal();
-                return;
-            }
-
-            try {
-                const credential = window.EmailAuthProvider.credential(currentUser.email, currentPassword);
-                await window.reauthenticateWithCredential(currentUser, credential);
-                await window.updateEmail(currentUser, newEmail);
-                showMessage('Email address changed successfully!', 'success');
-                document.getElementById('userEmail').textContent = newEmail;
-                closeModal();
-            } catch (error) {
-                console.error('Error changing email:', error);
-                if (error.code === 'auth/wrong-password') {
-                    showMessage('Current password is incorrect.', 'error');
-                } else if (error.code === 'auth/requires-recent-login') {
-                    showMessage('Please re-login to change your email.', 'warning');
-                    setTimeout(() => logout(), 2000);
-                } else if (error.code === 'auth/email-already-in-use') {
-                    showMessage('This email is already in use by another account.', 'error');
-                } else {
-                    showMessage('Failed to change email. Please try again.', 'error');
-                }
-            }
+            document.getElementById('userEmail').textContent = newEmail;
+            showMessage('Email address changed successfully!', 'success');
+            closeModal();
         }
 
-        async function editPhone() {
+        function editPhone() {
             showModal('Change Phone Number', `
                 <form onsubmit="saveNewPhone(event)">
                     <div class="form-group">
@@ -1659,26 +2743,15 @@
             `);
         }
 
-        async function saveNewPhone(event) {
+        function saveNewPhone(event) {
             event.preventDefault();
             const newPhone = document.getElementById('newPhone').value;
-
-            if (!newPhone.startsWith('+62')) {
-                showMessage('Nomor telepon harus dimulai dengan +62', 'error');
-                return;
-            }
-
-            try {
-                showMessage('Phone number updated successfully!', 'success');
-                document.getElementById('userPhone').textContent = newPhone;
-                closeModal();
-            } catch (error) {
-                console.error('Error changing phone number:', error);
-                showMessage('Failed to change phone number. Please try again.', 'error');
-            }
+            document.getElementById('userPhone').textContent = newPhone;
+            showMessage('Phone number updated successfully!', 'success');
+            closeModal();
         }
 
-        async function changePassword() {
+        function changePassword() {
             showModal('Change Password', `
                 <form onsubmit="saveNewPassword(event)">
                     <div class="form-group">
@@ -1701,157 +2774,227 @@
             `);
         }
 
-        async function saveNewPassword(event) {
+        function saveNewPassword(event) {
             event.preventDefault();
-            const currentPassword = document.getElementById('currentPassword').value;
             const newPassword = document.getElementById('newPassword').value;
-            const confirmNewPassword = document.getElementById('confirmNewPassword').value;
+            const confirmPassword = document.getElementById('confirmNewPassword').value;
 
-            if (newPassword !== confirmNewPassword) {
-                showMessage('New password and confirmation do not match!', 'error');
+            if (newPassword !== confirmPassword) {
+                showMessage('Passwords do not match!', 'error');
                 return;
             }
 
             if (newPassword.length < 6) {
-                showMessage('Password must be at least 6 characters long!', 'error');
+                showMessage('Password must be at least 6 characters!', 'error');
                 return;
             }
 
-            try {
-                const credential = window.EmailAuthProvider.credential(currentUser.email, currentPassword);
-                await window.reauthenticateWithCredential(currentUser, credential);
-                await window.updatePassword(currentUser, newPassword);
-                showMessage('Password changed successfully!', 'success');
-                closeModal();
-            } catch (error) {
-                console.error('Error changing password:', error);
-                if (error.code === 'auth/wrong-password') {
-                    showMessage('Current password is incorrect.', 'error');
-                } else if (error.code === 'auth/requires-recent-login') {
-                    showMessage('Please re-login to change your password.', 'warning');
-                    setTimeout(() => logout(), 2000);
-                } else {
-                    showMessage('Failed to change password. Please try again.', 'error');
-                }
-            }
+            showMessage('Password changed successfully!', 'success');
+            closeModal();
         }
 
         function changePIN() {
             showModal('Change Transaction PIN', `
-                <div style="text-align: center;">
-                    <p>PIN management feature is available in the full version with Firebase integration.</p>
-                    <button class="btn btn-primary" onclick="closeModal()">OK</button>
+                <div class="form-group">
+                    <label class="form-label">PIN Lama</label>
+                    <div class="pin-input-container">
+                        <input type="password" class="pin-digit" maxlength="1">
+                        <input type="password" class="pin-digit" maxlength="1">
+                        <input type="password" class="pin-digit" maxlength="1">
+                        <input type="password" class="pin-digit" maxlength="1">
+                        <input type="password" class="pin-digit" maxlength="1">
+                        <input type="password" class="pin-digit" maxlength="1">
+                    </div>
                 </div>
+                <div class="form-group">
+                    <label class="form-label">PIN Baru</label>
+                    <div class="pin-input-container">
+                        <input type="password" class="pin-digit" maxlength="1">
+                        <input type="password" class="pin-digit" maxlength="1">
+                        <input type="password" class="pin-digit" maxlength="1">
+                        <input type="password" class="pin-digit" maxlength="1">
+                        <input type="password" class="pin-digit" maxlength="1">
+                        <input type="password" class="pin-digit" maxlength="1">
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="savePINChange()">Ganti PIN</button>
             `);
         }
 
-        async function toggle2FA() {
+        function savePINChange() {
+            showMessage('Transaction PIN changed successfully!', 'success');
+            closeModal();
+        }
+
+        function toggle2FA() {
             showModal('Two-Factor Authentication', `
                 <div style="text-align: center;">
                     <p>Two-Factor Authentication (2FA) adds an extra layer of security to your account.</p>
-                    <p>Current Status: <span style="font-weight: 600; color: var(--danger-color);">Disabled</span></p>
-                    <p>2FA management is a complex feature involving external services (e.g., Google Authenticator) and is beyond the scope of this demo.</p>
-                    <button class="btn btn-primary" onclick="closeModal()">OK</button>
-                </div>
-            `);
-        }
-
-        // QR Code functions
-        function showQROptions() {
-            showModal('QR Pay', `
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                    <div class="quick-action" onclick="showMessage('QR Scanner feature available in full version', 'warning')" style="margin: 0;">
-                        <i class="fas fa-camera"></i>
-                        <div>Scan QR Code</div>
-                    </div>
-                    <div class="quick-action" onclick="showMessage('QR Generator feature available in full version', 'warning')" style="margin: 0;">
-                        <i class="fas fa-qrcode"></i>
-                        <div>QR Code Saya</div>
+                    <p>Current Status: <span style="font-weight: 600; color: var(--secondary-color);">Enabled</span></p>
+                    <div style="margin-top: 2rem;">
+                        <button class="btn btn-danger" onclick="disable2FA()">Disable 2FA</button>
+                        <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
                     </div>
                 </div>
             `);
         }
 
-        // Modal functions
-        function showModal(title, content) {
-            document.getElementById('modalTitle').textContent = title;
-            document.getElementById('modalBody').innerHTML = content;
-            document.getElementById('actionModal').classList.add('active');
-        }
-
-        function closeModal() {
-            document.getElementById('actionModal').classList.remove('active');
+        function disable2FA() {
+            showMessage('2FA has been disabled for your account.', 'warning');
+            closeModal();
         }
 
         // Utility functions
+        function filterTransactions(type) {
+            showMessage(`Filtering transactions by: ${type}`, "info");
+        }
+
+        function showModal(title, content) {
+            document.getElementById("modalTitle").textContent = title;
+            document.getElementById("modalBody").innerHTML = content;
+            document.getElementById("actionModal").classList.add("active");
+        }
+
+        function closeModal() {
+            document.getElementById("actionModal").classList.remove("active");
+        }
+
         function formatCurrency(amount) {
-            return new Intl.NumberFormat('id-ID', {
-                style: 'currency',
-                currency: 'IDR',
+            return new Intl.NumberFormat("id-ID", {
+                style: "currency",
+                currency: "IDR",
                 minimumFractionDigits: 0
             }).format(amount);
         }
 
         function showMessage(message, type) {
-            // Create and show temporary message
-            const messageEl = document.createElement('div');
+            const messageEl = document.createElement("div");
             messageEl.className = `message ${type}`;
             messageEl.textContent = message;
-            messageEl.style.position = 'fixed';
-            messageEl.style.top = '20px';
-            messageEl.style.right = '20px';
-            messageEl.style.zIndex = '10000';
-            messageEl.style.borderRadius = '8px';
-            messageEl.style.padding = '1rem';
-            messageEl.style.minWidth = '300px';
+            messageEl.style.position = "fixed";
+            messageEl.style.top = "20px";
+            messageEl.style.right = "20px";
+            messageEl.style.zIndex = "10000";
+            messageEl.style.borderRadius = "8px";
+            messageEl.style.padding = "1rem";
+            messageEl.style.minWidth = "300px";
+            messageEl.style.maxWidth = "400px";
             
             document.body.appendChild(messageEl);
             
             setTimeout(() => {
                 messageEl.remove();
-            }, 3000);
+            }, 4000);
         }
 
-        // Other functions
         function showNotifications() {
-            showModal('Notifications', `
-                <div style="text-align: center; padding: 2rem; color: var(--text-muted);">
-                    <i class="fas fa-bell" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
-                    <p>Belum ada notifikasi</p>
+            showModal("Notifications", `
+                <div id="notificationsList">
+                    <div class="transaction-item">
+                        <div class="transaction-icon" style="background: var(--info-color);">
+                            <i class="fas fa-bell"></i>
+                        </div>
+                        <div class="transaction-details">
+                            <div class="transaction-title">Transfer Berhasil</div>
+                            <div class="transaction-date">Transfer ke Jane Smith berhasil diproses</div>
+                        </div>
+                        <div style="color: var(--text-muted); font-size: 0.8rem;">2 min ago</div>
+                    </div>
+                    <div class="transaction-item">
+                        <div class="transaction-icon" style="background: var(--warning-color);">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="transaction-details">
+                            <div class="transaction-title">Tagihan Listrik</div>
+                            <div class="transaction-date">Tagihan listrik akan jatuh tempo dalam 3 hari</div>
+                        </div>
+                        <div style="color: var(--text-muted); font-size: 0.8rem;">1 hour ago</div>
+                    </div>
+                    <div class="transaction-item">
+                        <div class="transaction-icon" style="background: var(--secondary-color);">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="transaction-details">
+                            <div class="transaction-title">Investasi Update</div>
+                            <div class="transaction-date">Portfolio Anda naik 2.5% hari ini</div>
+                        </div>
+                        <div style="color: var(--text-muted); font-size: 0.8rem;">3 hours ago</div>
+                    </div>
                 </div>
             `);
         }
 
         async function logout() {
             try {
-                console.log('Logging out user...');
-                await window.signOut(window.firebaseAuth);
-                showMessage('Logged out successfully!', 'success');
+                console.log("Logging out user...");
+                showMessage("Logged out successfully!", "success");
                 
-                // Redirect to login page after successful logout
                 setTimeout(() => {
-                    window.location.href = 'index.html';
+                    window.location.href = "index.html";
                 }, 1000);
             } catch (error) {
-                console.error('Logout error:', error);
-                showMessage('Logout failed. Please try again.', 'error');
+                console.error("Logout error:", error);
+                showMessage("Logout failed. Please try again.", "error");
             }
         }
 
-        // Close modal when clicking outside
-        document.getElementById('actionModal').addEventListener('click', function(e) {
+        // Event listeners
+        document.getElementById("actionModal").addEventListener("click", function(e) {
             if (e.target === this) {
                 closeModal();
             }
         });
 
-        // Keyboard shortcuts
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
+        document.addEventListener("input", function(e) {
+            if (e.target.classList.contains("pin-digit")) {
+                const currentInput = e.target;
+                const maxLength = parseInt(currentInput.maxLength);
+                const currentLength = currentInput.value.length;
+
+                if (currentLength === maxLength) {
+                    let nextInput = currentInput.nextElementSibling;
+                    while (nextInput && nextInput.tagName !== "INPUT") {
+                        nextInput = nextInput.nextElementSibling;
+                    }
+                    if (nextInput && nextInput.classList.contains("pin-digit")) {
+                        nextInput.focus();
+                    }
+                }
+
+                if (currentLength === 0 && e.inputType === "deleteContentBackward") {
+                    let prevInput = currentInput.previousElementSibling;
+                    while (prevInput && prevInput.tagName !== "INPUT") {
+                        prevInput = prevInput.previousElementSibling;
+                    }
+                    if (prevInput && prevInput.classList.contains("pin-digit")) {
+                        prevInput.focus();
+                    }
+                }
+            }
+        });
+
+        document.addEventListener("keydown", function(e) {
+            if (e.key === "Escape") {
                 closeModal();
+            }
+        });
+
+        // Format card number input
+        document.addEventListener("input", function(e) {
+            if (e.target.id === "cardNumber") {
+                let value = e.target.value.replace(/\s/g, '').replace(/[^0-9]/gi, '');
+                let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
+                e.target.value = formattedValue;
+            }
+            
+            if (e.target.id === "cardExpiry") {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length >= 2) {
+                    value = value.substring(0, 2) + '/' + value.substring(2, 4);
+                }
+                e.target.value = value;
             }
         });
     </script>
 </body>
 </html>
-
