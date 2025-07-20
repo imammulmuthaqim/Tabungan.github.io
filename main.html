@@ -2055,15 +2055,177 @@
                 console.log('Loading user data for:', currentUser.email);
                 
                 try {
-                    const displayName = currentUser.displayName || currentUser.email.split('@')[0];
-                    document.getElementById('userGreeting').textContent = `Welcome back, ${displayName}!`;
-                    document.getElementById('userFullName').textContent = currentUser.displayName || 'John Doe';
-                    document.getElementById('userEmail').textContent = currentUser.email;
+                    // Check if user profile exists in database
+                    const userProfileRef = window.firebaseRef(window.firebaseDatabase, `users/${currentUser.uid}/profile`);
+                    const profileSnapshot = await window.firebaseGet(userProfileRef);
                     
-                    updateBalanceDisplay();
+                    if (!profileSnapshot.exists()) {
+                        // Create initial profile for new user
+                        const initialProfile = {
+                            fullName: currentUser.displayName || currentUser.email.split('@')[0],
+                            email: currentUser.email,
+                            phoneNumber: "+62812345678", // Default phone number
+                            balance: 0,
+                            transactionPIN: "123456" // Default PIN (should be changed)
+                        };
+                        
+                        await window.firebaseSet(userProfileRef, initialProfile);
+                        
+                        // Add phone to UID mapping
+                        const phoneToUidRef = window.firebaseRef(window.firebaseDatabase, `phoneToUid/${initialProfile.phoneNumber}`);
+                        await window.firebaseSet(phoneToUidRef, currentUser.uid);
+                        
+                        console.log('Created initial profile for new user');
+                    }
+                    
+                    // Set up real-time listeners for user data
+                    setupUserDataListeners();
+                    
                 } catch (error) {
                     console.error('Error loading user data:', error);
+                    showMessage('Error loading user data', 'error');
                 }
+            }
+        }
+
+        function setupUserDataListeners() {
+            if (!currentUser) return;
+            
+            // Listen to profile changes
+            const profileRef = window.firebaseRef(window.firebaseDatabase, `users/${currentUser.uid}/profile`);
+            window.firebaseOnValue(profileRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    const profile = snapshot.val();
+                    
+                    // Update UI elements
+                    document.getElementById('userGreeting').textContent = `Welcome back, ${profile.fullName}!`;
+                    document.getElementById('userFullName').textContent = profile.fullName;
+                    document.getElementById('userEmail').textContent = profile.email;
+                    document.getElementById('userPhone').textContent = profile.phoneNumber;
+                    
+                    // Update balance
+                    userBalance = profile.balance || 0;
+                    updateBalanceDisplay();
+                }
+            });
+            
+            // Listen to transactions changes
+            const transactionsRef = window.firebaseRef(window.firebaseDatabase, `users/${currentUser.uid}/transactions`);
+            window.firebaseOnValue(transactionsRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    const transactions = snapshot.val();
+                    updateTransactionsDisplay(transactions);
+                    updateMonthlyStats(transactions);
+                }
+            });
+        }
+
+        function updateTransactionsDisplay(transactions) {
+            const recentTransactionsContainer = document.getElementById('recentTransactions');
+            const transactionsListContainer = document.getElementById('transactionsList');
+            
+            if (!transactions) {
+                recentTransactionsContainer.innerHTML = '<p style="text-align: center; color: var(--text-muted);">No transactions yet</p>';
+                if (transactionsListContainer) {
+                    transactionsListContainer.innerHTML = '<p style="text-align: center; color: var(--text-muted);">No transactions yet</p>';
+                }
+                return;
+            }
+            
+            // Convert transactions object to array and sort by date
+            const transactionArray = Object.entries(transactions).map(([id, transaction]) => ({
+                id,
+                ...transaction
+            })).sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            // Update recent transactions (last 3)
+            const recentTransactions = transactionArray.slice(0, 3);
+            recentTransactionsContainer.innerHTML = recentTransactions.map(transaction => {
+                const isIncome = transaction.type === 'income';
+                const icon = isIncome ? 'fas fa-arrow-down' : 'fas fa-arrow-up';
+                const amountClass = isIncome ? 'income' : 'expense';
+                const amountPrefix = isIncome ? '+' : '-';
+                
+                return `
+                    <div class="transaction-item">
+                        <div class="transaction-icon ${amountClass}">
+                            <i class="${icon}"></i>
+                        </div>
+                        <div class="transaction-details">
+                            <div class="transaction-title">${transaction.title}</div>
+                            <div class="transaction-date">${formatDate(transaction.date)}</div>
+                        </div>
+                        <div class="transaction-amount ${amountClass}">${amountPrefix}${formatCurrency(transaction.amount)}</div>
+                    </div>
+                `;
+            }).join('');
+            
+            // Update full transactions list if container exists
+            if (transactionsListContainer) {
+                transactionsListContainer.innerHTML = transactionArray.map(transaction => {
+                    const isIncome = transaction.type === 'income';
+                    const icon = isIncome ? 'fas fa-arrow-down' : 'fas fa-arrow-up';
+                    const amountClass = isIncome ? 'income' : 'expense';
+                    const amountPrefix = isIncome ? '+' : '-';
+                    
+                    return `
+                        <div class="transaction-item">
+                            <div class="transaction-icon ${amountClass}">
+                                <i class="${icon}"></i>
+                            </div>
+                            <div class="transaction-details">
+                                <div class="transaction-title">${transaction.title}</div>
+                                <div class="transaction-date">${formatDate(transaction.date)} • ${transaction.id}</div>
+                            </div>
+                            <div class="transaction-amount ${amountClass}">${amountPrefix}${formatCurrency(transaction.amount)}</div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+        
+        function updateMonthlyStats(transactions) {
+            if (!transactions) {
+                document.getElementById('monthlyIncome').textContent = '+Rp 0';
+                document.getElementById('monthlyExpense').textContent = '-Rp 0';
+                return;
+            }
+            
+            const currentMonth = new Date().getMonth();
+            const currentYear = new Date().getFullYear();
+            
+            let monthlyIncome = 0;
+            let monthlyExpense = 0;
+            
+            Object.values(transactions).forEach(transaction => {
+                const transactionDate = new Date(transaction.date);
+                if (transactionDate.getMonth() === currentMonth && transactionDate.getFullYear() === currentYear) {
+                    if (transaction.type === 'income') {
+                        monthlyIncome += transaction.amount;
+                    } else {
+                        monthlyExpense += transaction.amount;
+                    }
+                }
+            });
+            
+            document.getElementById('monthlyIncome').textContent = `+${formatCurrency(monthlyIncome)}`;
+            document.getElementById('monthlyExpense').textContent = `-${formatCurrency(monthlyExpense)}`;
+        }
+        
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffTime = Math.abs(now - date);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            if (diffDays === 1) {
+                return `Today, ${date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}`;
+            } else if (diffDays === 2) {
+                return `Yesterday, ${date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}`;
+            } else if (diffDays <= 7) {
+                return `${diffDays - 1} days ago, ${date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}`;
+            } else {
+                return date.toLocaleDateString('id-ID') + ', ' + date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
             }
         }
 
@@ -2157,22 +2319,50 @@
                 return;
             }
 
-            // Simulate search (in real app, this would query Firebase)
-            setTimeout(() => {
-                // Mock recipient data
+            try {
+                showMessage("Mencari penerima...", "info");
+                
+                // Search for recipient UID using phone number
+                const phoneToUidRef = window.firebaseRef(window.firebaseDatabase, `phoneToUid/${phone}`);
+                const uidSnapshot = await window.firebaseGet(phoneToUidRef);
+                
+                if (!uidSnapshot.exists()) {
+                    showMessage("Nomor telepon tidak terdaftar.", "error");
+                    return;
+                }
+                
+                const recipientUid = uidSnapshot.val();
+                
+                // Get recipient profile
+                const recipientProfileRef = window.firebaseRef(window.firebaseDatabase, `users/${recipientUid}/profile`);
+                const profileSnapshot = await window.firebaseGet(recipientProfileRef);
+                
+                if (!profileSnapshot.exists()) {
+                    showMessage("Data penerima tidak ditemukan.", "error");
+                    return;
+                }
+                
+                const recipientProfile = profileSnapshot.val();
+                
+                // Store recipient data for transfer
                 recipientData = {
-                    displayName: "Jane Smith",
-                    phoneNumber: phone,
-                    uid: "mock-uid-123"
+                    uid: recipientUid,
+                    fullName: recipientProfile.fullName,
+                    phoneNumber: recipientProfile.phoneNumber,
+                    email: recipientProfile.email
                 };
 
-                document.getElementById("recipientName").textContent = recipientData.displayName;
+                document.getElementById("recipientName").textContent = recipientData.fullName;
                 document.getElementById("recipientPhoneDisplay").textContent = recipientData.phoneNumber;
-                document.getElementById("recipientAvatar").textContent = recipientData.displayName[0].toUpperCase();
+                document.getElementById("recipientAvatar").textContent = recipientData.fullName[0].toUpperCase();
 
                 showTransferStep(2);
                 showMessage("Penerima ditemukan!", "success");
-            }, 1000);
+                
+            } catch (error) {
+                console.error('Error searching recipient:', error);
+                showMessage("Terjadi kesalahan saat mencari penerima.", "error");
+            }
         }
 
         function showTransferStep(step) {
@@ -2202,26 +2392,79 @@
             document.getElementById("pinTransfer1").focus();
         }
 
-        function executeTransfer() {
+        async function executeTransfer() {
             const enteredPin = Array.from(document.querySelectorAll("#transferStep3 .pin-digit")).map(input => input.value).join("");
             if (enteredPin.length !== 6) {
                 showMessage("Masukkan PIN 6 digit lengkap.", "warning");
                 return;
             }
 
-            // Simulate PIN verification
-            if (enteredPin !== "123456") {
-                showMessage("PIN salah. Coba lagi.", "error");
-                return;
-            }
-
-            // Simulate transfer execution
-            setTimeout(() => {
-                userBalance -= transferAmount;
+            try {
+                showMessage("Memverifikasi PIN...", "info");
                 
+                // Verify PIN
+                const userProfileRef = window.firebaseRef(window.firebaseDatabase, `users/${currentUser.uid}/profile`);
+                const profileSnapshot = await window.firebaseGet(userProfileRef);
+                
+                if (!profileSnapshot.exists()) {
+                    showMessage("Data pengguna tidak ditemukan.", "error");
+                    return;
+                }
+                
+                const userProfile = profileSnapshot.val();
+                if (enteredPin !== userProfile.transactionPIN) {
+                    showMessage("PIN salah. Coba lagi.", "error");
+                    return;
+                }
+                
+                // Check current balance
+                if (userProfile.balance < transferAmount) {
+                    showMessage("Saldo tidak mencukupi.", "error");
+                    return;
+                }
+                
+                showMessage("Memproses transfer...", "info");
+                
+                // Execute atomic transaction
                 const transactionId = `TXN-${new Date().toISOString().replace(/[^0-9]/g, "").slice(0, 14)}-${Math.floor(Math.random() * 1000)}`;
+                const currentTime = new Date().toISOString();
                 
-                document.getElementById("finalRecipientName").textContent = recipientData.displayName;
+                // Update sender balance
+                const senderBalanceRef = window.firebaseRef(window.firebaseDatabase, `users/${currentUser.uid}/profile/balance`);
+                await window.firebaseSet(senderBalanceRef, userProfile.balance - transferAmount);
+                
+                // Update recipient balance
+                const recipientProfileRef = window.firebaseRef(window.firebaseDatabase, `users/${recipientData.uid}/profile`);
+                const recipientSnapshot = await window.firebaseGet(recipientProfileRef);
+                const recipientProfile = recipientSnapshot.val();
+                const recipientBalanceRef = window.firebaseRef(window.firebaseDatabase, `users/${recipientData.uid}/profile/balance`);
+                await window.firebaseSet(recipientBalanceRef, (recipientProfile.balance || 0) + transferAmount);
+                
+                // Create transaction records
+                const senderTransactionRef = window.firebaseRef(window.firebaseDatabase, `users/${currentUser.uid}/transactions`);
+                const senderTransactionData = {
+                    type: 'expense',
+                    title: `Transfer ke ${recipientData.fullName}`,
+                    amount: transferAmount,
+                    date: currentTime,
+                    recipientPhone: recipientData.phoneNumber,
+                    transactionId: transactionId
+                };
+                await window.firebasePush(senderTransactionRef, senderTransactionData);
+                
+                const recipientTransactionRef = window.firebaseRef(window.firebaseDatabase, `users/${recipientData.uid}/transactions`);
+                const recipientTransactionData = {
+                    type: 'income',
+                    title: `Transfer dari ${userProfile.fullName}`,
+                    amount: transferAmount,
+                    date: currentTime,
+                    senderPhone: userProfile.phoneNumber,
+                    transactionId: transactionId
+                };
+                await window.firebasePush(recipientTransactionRef, recipientTransactionData);
+                
+                // Update UI with success details
+                document.getElementById("finalRecipientName").textContent = recipientData.fullName;
                 document.getElementById("finalRecipientPhone").textContent = recipientData.phoneNumber;
                 document.getElementById("finalTransferAmount").textContent = formatCurrency(transferAmount);
                 document.getElementById("finalTransferDate").textContent = new Date().toLocaleDateString("id-ID");
@@ -2230,8 +2473,11 @@
 
                 showMessage("Transfer berhasil!", "success");
                 showTransferStep(4);
-                updateBalanceDisplay();
-            }, 2000);
+                
+            } catch (error) {
+                console.error('Transfer error:', error);
+                showMessage("Terjadi kesalahan saat memproses transfer.", "error");
+            }
         }
 
         function resetTransfer() {
@@ -2692,13 +2938,26 @@
             `);
         }
 
-        function saveProfileEdit(event) {
+        async function saveProfileEdit(event) {
             event.preventDefault();
             const newName = document.getElementById('editFullName').value;
-            document.getElementById('userFullName').textContent = newName;
-            document.getElementById('userGreeting').textContent = `Welcome back, ${newName}!`;
-            showMessage('Profile updated successfully!', 'success');
-            closeModal();
+            
+            if (!newName.trim()) {
+                showMessage('Name cannot be empty', 'error');
+                return;
+            }
+            
+            try {
+                // Update profile in Firebase
+                const profileRef = window.firebaseRef(window.firebaseDatabase, `users/${currentUser.uid}/profile/fullName`);
+                await window.firebaseSet(profileRef, newName);
+                
+                showMessage('Profile updated successfully!', 'success');
+                closeModal();
+            } catch (error) {
+                console.error('Error updating profile:', error);
+                showMessage('Failed to update profile', 'error');
+            }
         }
 
         function editEmail() {
@@ -2743,12 +3002,48 @@
             `);
         }
 
-        function saveNewPhone(event) {
+        async function saveNewPhone(event) {
             event.preventDefault();
             const newPhone = document.getElementById('newPhone').value;
-            document.getElementById('userPhone').textContent = newPhone;
-            showMessage('Phone number updated successfully!', 'success');
-            closeModal();
+            
+            if (!newPhone.trim()) {
+                showMessage('Phone number cannot be empty', 'error');
+                return;
+            }
+            
+            try {
+                const oldPhone = document.getElementById('userPhone').textContent;
+                
+                // Check if new phone number is already taken
+                const phoneToUidRef = window.firebaseRef(window.firebaseDatabase, `phoneToUid/${newPhone}`);
+                const phoneSnapshot = await window.firebaseGet(phoneToUidRef);
+                
+                if (phoneSnapshot.exists() && phoneSnapshot.val() !== currentUser.uid) {
+                    showMessage('Phone number is already registered to another user', 'error');
+                    return;
+                }
+                
+                // Update phone number in profile
+                const profilePhoneRef = window.firebaseRef(window.firebaseDatabase, `users/${currentUser.uid}/profile/phoneNumber`);
+                await window.firebaseSet(profilePhoneRef, newPhone);
+                
+                // Update phoneToUid mapping
+                if (oldPhone !== newPhone) {
+                    // Remove old phone mapping
+                    const oldPhoneRef = window.firebaseRef(window.firebaseDatabase, `phoneToUid/${oldPhone}`);
+                    await window.firebaseSet(oldPhoneRef, null);
+                    
+                    // Add new phone mapping
+                    const newPhoneRef = window.firebaseRef(window.firebaseDatabase, `phoneToUid/${newPhone}`);
+                    await window.firebaseSet(newPhoneRef, currentUser.uid);
+                }
+                
+                showMessage('Phone number updated successfully!', 'success');
+                closeModal();
+            } catch (error) {
+                console.error('Error updating phone:', error);
+                showMessage('Failed to update phone number', 'error');
+            }
         }
 
         function changePassword() {
